@@ -52,11 +52,18 @@ func main() {
 	Append_Text(text)
 	functions.Test()
 
-	a := "hassan is (a)    good    person     (in) his zone"
+	a := "hassan is (a, 6)    good    person     (in) his zone"
 	t := functions.Split_Text(a)
 	for _, i := range t {
 		fmt.Println(i)
 	}
+
+	tes := t[0]
+	r, k, i := functions.Search_KeyWord(tes)
+	fmt.Println(tes)
+	fmt.Println(r)
+	fmt.Println(k)
+	fmt.Println(i)
 }
 
 // add comment
