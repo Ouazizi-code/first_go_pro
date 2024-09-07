@@ -1,12 +1,13 @@
 package main
 
 import (
+	"first_go_pro/functions"
 	"fmt"
 	"os"
 )
 
-// this function to extract text from file
-func Extract_Text() {
+// this function to extract text from file and append it to another file
+func Extract_Text() string {
 
 	// lets read the content of the file
 	content, err := os.ReadFile("test.txt")
@@ -17,10 +18,15 @@ func Extract_Text() {
 
 	// convert the content into string
 	text := string(content)
+	valid_Text := functions.Expand_Spaces(text)
+	return valid_Text
+}
 
+// this function append text into result.txt
+func Append_Text(text string) {
 	// lets append the text int result.txt
 	result_file := os.Args[2]
-	file, err := os.OpenFile(result_file, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	file, err := os.OpenFile(result_file, os.O_APPEND|os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	// handle the errors
 	if err != nil {
 		fmt.Println("eror :", err)
@@ -33,7 +39,6 @@ func Extract_Text() {
 	if err != nil {
 		fmt.Println("eror :", err)
 	}
-
 }
 
 func main() {
@@ -43,7 +48,9 @@ func main() {
 		return
 	}
 
-	Extract_Text()
+	text := Extract_Text()
+	Append_Text(text)
+	functions.Test()
 }
 
 // add comment
