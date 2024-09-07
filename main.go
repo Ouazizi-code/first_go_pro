@@ -51,6 +51,12 @@ func main() {
 	text := Extract_Text()
 	Append_Text(text)
 	functions.Test()
+
+	a := "hassan is (a)    good    person     (in) his zone"
+	t := functions.Split_Text(a)
+	for _, i := range t {
+		fmt.Println(i)
+	}
 }
 
 // add comment
