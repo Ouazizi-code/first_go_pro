@@ -74,5 +74,53 @@ func Search_KeyWord(s string) (string, string, int) {
 	// convert the string into valid number
 	final_int, _ = strconv.Atoi(Int_AsString)
 
+	// this part for (hex) and (bin)
+
+	bin_or_hex := ""
+
+	for i := startIndex - 2; i >= 0; i-- {
+		char := s[i]
+		if char == ' ' {
+			break
+		}
+		bin_or_hex += string(char)
+	}
+	to_reverse := bin_or_hex
+	bin_or_hex = ""
+	// reverse yhe string by this method
+	for _, v := range to_reverse {
+		bin_or_hex = string(v) + bin_or_hex
+	}
+	fmt.Println(bin_or_hex)
+
+	// send this bin_or_hex to To_Dicimal function
+	dicimal := To_Dicimal(bin_or_hex, key_Word)
+	fmt.Println(dicimal)
 	return result, key_Word, final_int
+}
+
+// this function convert hex and binary  to dicimal
+
+func To_Dicimal(s, key_Word string) int {
+	var result int64
+	switch key_Word {
+	case "bin":
+		result, err := strconv.ParseInt(s, 2, 64)
+		// handle erors
+		if err != nil {
+			fmt.Println("erour", err)
+			return 0
+		}
+		return int(result)
+	case "hex":
+		result, err := strconv.ParseInt(s, 16, 64)
+		// handle erors
+		if err != nil {
+			fmt.Println("erour", err)
+			return 0
+		}
+		return int(result)
+	}
+
+	return int(result)
 }

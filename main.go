@@ -52,7 +52,7 @@ func main() {
 	Append_Text(text)
 	functions.Test()
 
-	a := "hassan is (a, 6)    good    person     (in) his zone"
+	a := "hassan F1 (hex)    good    person"
 	t := functions.Split_Text(a)
 	for _, i := range t {
 		fmt.Println(i)
