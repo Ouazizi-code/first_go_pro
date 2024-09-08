@@ -29,7 +29,7 @@ func Split_Text(s string) []string {
 	for i, char := range s {
 		if char == delemeter {
 			endIndex = i
-			result = append(result, Expand_Spaces(s[startIndex:endIndex+1]))
+			result = append(result, Expand_Spaces(s[startIndex:endIndex+2])+" ")
 			startIndex = endIndex + 1
 		}
 	}
@@ -46,15 +46,26 @@ func Search_KeyWord(s string) (string, string, int) {
 	Int_AsString := ""
 	final_int := 0
 	startIndex := 0
+	end_Index := 0
 
 	for i, char := range s {
 		if char == '(' {
-			startIndex = i
+			startIndex = i - 1
 		}
 	}
 
-	// this the fill text inside braces
-	result = s[startIndex:]
+	for i, char := range s {
+		if char == ')' {
+			end_Index = i + 2
+		}
+	}
+	/*if s[end_Index] == ' ' {
+		end_Index = end_Index - 2
+		startIndex = startIndex + 2
+	}*/
+
+	// this the fill text with braces
+	result = s[startIndex:end_Index]
 
 	// lests extract just keyword
 	for i := 0; i < len(result); i++ {
@@ -71,8 +82,45 @@ func Search_KeyWord(s string) (string, string, int) {
 			Int_AsString += string(char)
 		}
 	}
+	// inisialize the num if not exist
+	if Int_AsString == "" {
+		Int_AsString = "1"
+	}
 	// convert the string into valid number
 	final_int, _ = strconv.Atoi(Int_AsString)
 
 	return result, key_Word, final_int
+}
+
+// this function test if the sentence is valid to manipilation
+func Is_Valid(sentenc, full_result, key_Word string, num int) bool {
+	// Cconvert the num into a string
+	num_As_String := strconv.Itoa(num)
+	first_case := " (" + key_Word + ") "
+	secend_case := " (" + key_Word + ", " + num_As_String + ") "
+	result := true
+
+	// check if the cases match the full result
+	if full_result == first_case || full_result == secend_case {
+		result = true
+	} else {
+		result = false
+	}
+
+	return result
+}
+
+// this function accept a sentenc and manipulate it in depend the keyword
+func Manipulate_sentenc(sentenc, full_result, key_Word string, num int) string {
+	result := ""
+	status := Is_Valid(sentenc, full_result, key_Word, num)
+
+	// check if the sentenc is valid
+	if status {
+	} else {
+		// if not valid just manipulate it as a string and store it directly
+		result = sentenc
+	}
+
+	return result
 }
