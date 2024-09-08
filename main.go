@@ -1,14 +1,14 @@
 package main
 
 import (
-	"first_go_pro/functions"
 	"fmt"
 	"os"
+
+	"go-reloaded/functions"
 )
 
 // this function to extract text from file and append it to another file
 func Extract_Text() string {
-
 	// lets read the content of the file
 	content, err := os.ReadFile("test.txt")
 	// handle the errors
@@ -22,11 +22,22 @@ func Extract_Text() string {
 	return valid_Text
 }
 
+// this function distribute each sentence from the  splited array
+func Destribut_Sentenes(array, full_result, key_Word string, num int) {
+	n := len(array)
+
+	// loop throught the array and send it to manipulation
+	for i := 0; i < n; i++ {
+		sentence := string(array[i])
+		functions.Manipulate_sentenc(sentence, full_result, key_Word, num)
+	}
+}
+
 // this function append text into result.txt
 func Append_Text(text string) {
 	// lets append the text int result.txt
 	result_file := os.Args[2]
-	file, err := os.OpenFile(result_file, os.O_APPEND|os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(result_file, os.O_APPEND|os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
 	// handle the errors
 	if err != nil {
 		fmt.Println("eror :", err)
@@ -50,20 +61,31 @@ func main() {
 
 	text := Extract_Text()
 	Append_Text(text)
-	functions.Test()
 
+<<<<<<< HEAD
 	a := "hassan F1 (hex)    good    person"
 	t := functions.Split_Text(a)
 	for _, i := range t {
+=======
+	a := "hassan is (a, 6)good    person(in) his zone"
+	array := functions.Split_Text(a)
+	for _, i := range array {
+>>>>>>> 382ff40b6c880f81a50c5342d221ceb3ab6fe1e9
 		fmt.Println(i)
 	}
 
-	tes := t[0]
-	r, k, i := functions.Search_KeyWord(tes)
-	fmt.Println(tes)
-	fmt.Println(r)
-	fmt.Println(k)
-	fmt.Println(i)
+	tes := array[2]
+	full_result, key_Word, number := functions.Search_KeyWord(tes)
+
+	fmt.Println(full_result, len(full_result))
+	fmt.Println(key_Word)
+	fmt.Println(number)
+	status := functions.Is_Valid(tes, full_result, key_Word, number)
+	if status {
+		fmt.Println("the sentense ready to be manipulated")
+	} else {
+		fmt.Println("the sentense not valid")
+	}
 }
 
 // add comment
