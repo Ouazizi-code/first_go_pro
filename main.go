@@ -18,19 +18,7 @@ func Extract_Text() string {
 
 	// convert the content into string
 	text := string(content)
-	valid_Text := functions.Expand_Spaces(text)
-	return valid_Text
-}
-
-// this function distribute each sentence from the  splited array
-func Destribut_Sentenes(array, full_result, key_Word string, num int) {
-	n := len(array)
-
-	// loop throught the array and send it to manipulation
-	for i := 0; i < n; i++ {
-		sentence := string(array[i])
-		functions.Manipulate_sentenc(sentence, full_result, key_Word, num)
-	}
+	return text
 }
 
 // this function append text into result.txt
@@ -44,7 +32,7 @@ func Append_Text(text string) {
 	}
 
 	// lets write the text
-	i, err := file.WriteString(text)
+	i, err := file.WriteString(text + "\n")
 	i++
 	// handle the errors
 	if err != nil {
@@ -60,32 +48,26 @@ func main() {
 	}
 
 	text := Extract_Text()
-	Append_Text(text)
+	// split the full text by a newline
+	lines := functions.Split_By_Newline(text)
 
-<<<<<<< HEAD
-	a := "hassan F1 (hex)    good    person"
-	t := functions.Split_Text(a)
-	for _, i := range t {
-=======
-	a := "hassan is (a, 6)good    person(in) his zone"
-	array := functions.Split_Text(a)
-	for _, i := range array {
->>>>>>> 382ff40b6c880f81a50c5342d221ceb3ab6fe1e9
-		fmt.Println(i)
+	//array := functions.Split_Text(text)
+
+	// this for just  to append line by line
+	modifid_text := "" // this contain all text
+	for _, line := range lines {
+		// send this line to remove extra spaces
+		line = functions.Expand_Spaces(line)
+		//fmt.Println(line)
+		modifed_line := functions.Destribute_Sentences(line)
+		//fmt.Println(modifed_line)
+		// now append the modifed line
+
+		modifid_text += modifed_line + "\n"
 	}
 
-	tes := array[2]
-	full_result, key_Word, number := functions.Search_KeyWord(tes)
+	Append_Text(modifid_text)
 
-	fmt.Println(full_result, len(full_result))
-	fmt.Println(key_Word)
-	fmt.Println(number)
-	status := functions.Is_Valid(tes, full_result, key_Word, number)
-	if status {
-		fmt.Println("the sentense ready to be manipulated")
-	} else {
-		fmt.Println("the sentense not valid")
-	}
 }
 
 // add comment

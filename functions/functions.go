@@ -18,7 +18,14 @@ func Expand_Spaces(s string) string {
 	return valid_Text
 }
 
-// this function split text from a delemeter
+// this function split text by newline
+
+func Split_By_Newline(text string) []string {
+	array := strings.Split(text, "\n")
+	return array
+}
+
+// this function split text from a )
 
 func Split_Text(s string) []string {
 	result := []string{}
@@ -29,7 +36,7 @@ func Split_Text(s string) []string {
 	for i, char := range s {
 		if char == delemeter {
 			endIndex = i
-			result = append(result, Expand_Spaces(s[startIndex:endIndex+2])+" ")
+			result = append(result, Expand_Spaces(s[startIndex:endIndex+1]))
 			startIndex = endIndex + 1
 		}
 	}
@@ -46,26 +53,15 @@ func Search_KeyWord(s string) (string, string, int) {
 	Int_AsString := ""
 	final_int := 0
 	startIndex := 0
-	end_Index := 0
 
 	for i, char := range s {
 		if char == '(' {
-			startIndex = i - 1
+			startIndex = i
 		}
 	}
 
-	for i, char := range s {
-		if char == ')' {
-			end_Index = i + 2
-		}
-	}
-	/*if s[end_Index] == ' ' {
-		end_Index = end_Index - 2
-		startIndex = startIndex + 2
-	}*/
-
-	// this the fill text with braces
-	result = s[startIndex:end_Index]
+	// this the fill text inside braces
+	result = Expand_Spaces(s[startIndex:])
 
 	// lests extract just keyword
 	for i := 0; i < len(result); i++ {
@@ -82,39 +78,76 @@ func Search_KeyWord(s string) (string, string, int) {
 			Int_AsString += string(char)
 		}
 	}
-	// inisialize the num if not exist
-	if Int_AsString == "" {
-		Int_AsString = "1"
-	}
 	// convert the string into valid number
 	final_int, _ = strconv.Atoi(Int_AsString)
 
-	// this part for (hex) and (bin)
-
-	bin_or_hex := ""
-
-	for i := startIndex - 2; i >= 0; i-- {
-		char := s[i]
-		if char == ' ' {
-			break
-		}
-		bin_or_hex += string(char)
-	}
-	to_reverse := bin_or_hex
-	bin_or_hex = ""
-	// reverse yhe string by this method
-	for _, v := range to_reverse {
-		bin_or_hex = string(v) + bin_or_hex
-	}
-	fmt.Println(bin_or_hex)
-
-	// send this bin_or_hex to To_Dicimal function
-	dicimal := To_Dicimal(bin_or_hex, key_Word)
-	fmt.Println(dicimal)
 	return result, key_Word, final_int
 }
 
-<<<<<<< HEAD
+// this function check the valid keyword
+func Is_Valid(full_resul, key_word string, number int) bool {
+	// convert the number to string
+	num_as_string := strconv.Itoa(number)
+	first_case := "(" + key_word + ")"
+	second_case := "(" + key_word + "," + num_as_string + ")"
+
+	// check now
+	if full_resul == first_case || full_resul == second_case {
+		return true
+	}
+
+	return false
+}
+
+// this function remove only braces and return valid string
+func Rmove_braces(sentenc, delimiter string) string {
+	result := strings.Replace(sentenc, delimiter, "", 1)
+	return result
+}
+
+// this the sentence manipulation function
+func Sentenc_Mainpulation(valid_sentence, key_word string, number int, status bool) string {
+	result := ""
+	// check the keyword if valid
+	if status {
+
+		result = "good"
+
+	} else {
+
+		return valid_sentence
+
+	}
+	return result
+}
+
+// this function destribute each sentence to manipulate
+func Destribute_Sentences(line string) string {
+	// lets splite our line into small sentences from our delimiter
+	array_of_sentences := Split_Text(line)
+	n := len(array_of_sentences)
+	fmt.Println(array_of_sentences, n)
+	result := ""
+
+	// now lets destribute our sentences to manipulate with a for loop
+	for i := 0; i < n; i++ {
+		sentenc := array_of_sentences[i]
+		// check if this sentence caontein  flag ()
+		// send this sentenc to search_keyword to find the keyword
+		full_result, key_word, number := Search_KeyWord(sentenc)
+		fmt.Println(full_result, key_word, number)
+		// lets check if the keyword is valid
+		status := Is_Valid(full_result, key_word, number)
+		// lets modifid the sentence and remove the braces if exist
+		valid_sentence := Rmove_braces(sentenc, full_result)
+		// lets send this valid sentence to manipulation depend on the keyword and status
+		manipulated_sentenc := Sentenc_Mainpulation(valid_sentence, key_word, number, status)
+		result += manipulated_sentenc
+	}
+
+	return result
+}
+
 // this function convert hex and binary  to dicimal
 
 func To_Dicimal(s, key_Word string) int {
@@ -139,37 +172,4 @@ func To_Dicimal(s, key_Word string) int {
 	}
 
 	return int(result)
-=======
-// this function test if the sentence is valid to manipilation
-func Is_Valid(sentenc, full_result, key_Word string, num int) bool {
-	// Cconvert the num into a string
-	num_As_String := strconv.Itoa(num)
-	first_case := " (" + key_Word + ") "
-	secend_case := " (" + key_Word + ", " + num_As_String + ") "
-	result := true
-
-	// check if the cases match the full result
-	if full_result == first_case || full_result == secend_case {
-		result = true
-	} else {
-		result = false
-	}
-
-	return result
-}
-
-// this function accept a sentenc and manipulate it in depend the keyword
-func Manipulate_sentenc(sentenc, full_result, key_Word string, num int) string {
-	result := ""
-	status := Is_Valid(sentenc, full_result, key_Word, num)
-
-	// check if the sentenc is valid
-	if status {
-	} else {
-		// if not valid just manipulate it as a string and store it directly
-		result = sentenc
-	}
-
-	return result
->>>>>>> 382ff40b6c880f81a50c5342d221ceb3ab6fe1e9
 }
