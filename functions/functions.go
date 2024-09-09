@@ -57,11 +57,15 @@ func Search_KeyWord(s string) (string, string, int) {
 	for i, char := range s {
 		if char == '(' {
 			startIndex = i
+			break
+		} else {
+			startIndex = len(s)
 		}
 	}
 
 	// this the fill text inside braces
-	result = Expand_Spaces(s[startIndex:])
+	test := strings.Replace(s[startIndex:], " ", "", -1)
+	result = test
 
 	// lests extract just keyword
 	for i := 0; i < len(result); i++ {
@@ -100,22 +104,59 @@ func Is_Valid(full_resul, key_word string, number int) bool {
 }
 
 // this function remove only braces and return valid string
-func Rmove_braces(sentenc, delimiter string) string {
+func Rmove_braces(sentenc, delimiter string) (string, string) {
+	// in this case our delimiter contains any thing inside braces
+	// exemple delimiter = (cap,5) passed as params
 	result := strings.Replace(sentenc, delimiter, "", 1)
+
+	// so let do some work for bin and hex
+	// extract the string befor braces asn well as is a binary or hex
+	arr := strings.Split(result, " ")
+	// after removing braces the last index is the bin_or_hex
+	bin_or_hex := arr[len(arr)-1]
+
+	return result, bin_or_hex
+}
+
+// this function edit the sentence depend the keyword and number
+// this function contains swith cases
+func Edit_Sentece(sentenc, key_word, bin_or_hex string, number int) string {
+	result := ""
+	// start our switch
+	switch key_word {
+	case "cap":
+		result = Capitalize(sentenc, number)
+	case "up":
+		result = To_Upper(sentenc, number)
+	case "low":
+		result = To_Lower(sentenc, number)
+	case "bin":
+		// convert the bin string to dicimal
+		dicimal := To_Dicimal(bin_or_hex, key_word)
+		// let convert now the number to string
+		num_as_string := strconv.Itoa(dicimal)
+		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string)
+	case "hex":
+		dicimal := To_Dicimal(bin_or_hex, key_word)
+		// let convert now the number to string
+		num_as_string := strconv.Itoa(dicimal)
+		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string)
+	}
 	return result
 }
 
 // this the sentence manipulation function
-func Sentenc_Mainpulation(valid_sentence, key_word string, number int, status bool) string {
+func Sentenc_Mainpulation(valid_sentence, key_word, bin_or_hex string, number int, status bool) string {
 	result := ""
 	// check the keyword if valid
 	if status {
 
 		result = "good"
+		result = Edit_Sentece(valid_sentence, key_word, bin_or_hex, number)
 
 	} else {
 
-		return valid_sentence
+		result = valid_sentence
 
 	}
 	return result
@@ -132,17 +173,19 @@ func Destribute_Sentences(line string) string {
 	// now lets destribute our sentences to manipulate with a for loop
 	for i := 0; i < n; i++ {
 		sentenc := array_of_sentences[i]
-		// check if this sentence caontein  flag ()
 		// send this sentenc to search_keyword to find the keyword
 		full_result, key_word, number := Search_KeyWord(sentenc)
 		fmt.Println(full_result, key_word, number)
 		// lets check if the keyword is valid
 		status := Is_Valid(full_result, key_word, number)
 		// lets modifid the sentence and remove the braces if exist
-		valid_sentence := Rmove_braces(sentenc, full_result)
+		valid_sentence, bin_or_hex := Rmove_braces(sentenc, full_result)
+		valid_sentence = Expand_Spaces(valid_sentence)
 		// lets send this valid sentence to manipulation depend on the keyword and status
-		manipulated_sentenc := Sentenc_Mainpulation(valid_sentence, key_word, number, status)
-		result += manipulated_sentenc
+		manipulated_sentenc := Sentenc_Mainpulation(result+valid_sentence, key_word, bin_or_hex, number, status)
+		// refresh the result and concat it with  the valid sentence
+		result = ""
+		result += manipulated_sentenc + " "
 	}
 
 	return result
@@ -172,4 +215,72 @@ func To_Dicimal(s, key_Word string) int {
 	}
 
 	return int(result)
+}
+
+// this function for the bin and hex
+// it replace the bin_or_hex string by the num_as_atring in the sentenc
+func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string) string {
+	result := strings.Replace(sentenc, bin_or_hex, num_as_string, 1)
+	return result
+}
+
+// this a capitalise function
+
+func Capitalize(sentenc string, number int) string {
+	array_of_words := strings.Split(sentenc, " ")
+	// loop throught the array
+	n := len(array_of_words) - 1
+	// update the number if it is grather the len(array_of_words) and if = 0
+	if number == 0 || number == 1 {
+		number = 1
+	}
+	if number > len(array_of_words) {
+		number = len(array_of_words)
+	}
+	for i := n; i > n-number; i-- {
+		array_of_words[i] = strings.Title(array_of_words[i])
+	}
+
+	result := strings.Join(array_of_words, " ")
+	return result
+}
+
+// this function to uper the words
+func To_Upper(sentenc string, number int) string {
+	array_of_words := strings.Split(sentenc, " ")
+	// loop throught the array
+	n := len(array_of_words) - 1
+	// update the number if it is grather the len(array_of_words) and if = 0
+	if number == 0 || number == 1 {
+		number = 1
+	}
+	if number > len(array_of_words) {
+		number = len(array_of_words)
+	}
+	for i := n; i > n-number; i-- {
+		array_of_words[i] = strings.ToUpper(array_of_words[i])
+	}
+
+	result := strings.Join(array_of_words, " ")
+	return result
+}
+
+// this function to lower the words
+func To_Lower(sentenc string, number int) string {
+	array_of_words := strings.Split(sentenc, " ")
+	// loop throught the array
+	n := len(array_of_words) - 1
+	// update the number if it is grather the len(array_of_words) and if = 0
+	if number == 0 || number == 1 {
+		number = 1
+	}
+	if number > len(array_of_words) {
+		number = len(array_of_words)
+	}
+	for i := n; i > n-number; i-- {
+		array_of_words[i] = strings.ToLower(array_of_words[i])
+	}
+
+	result := strings.Join(array_of_words, " ")
+	return result
 }
