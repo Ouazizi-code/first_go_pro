@@ -2,6 +2,7 @@ package functions
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -53,14 +54,26 @@ func Search_KeyWord(s string) (string, string, string, int) {
 	Int_AsString := ""
 	final_int := 0
 	startIndex := 0
+	/*
+		for i, char := range s {
+			if char == '(' {
+				startIndex = i
+				break
+			} else {
+				startIndex = len(s)
+			}
+		}*/
 
-	for i, char := range s {
+	// lets loop throught the stering in reverse to extract the full result
+	for i := len(s) - 1; i >= 0; i-- {
+		char := s[i]
 		if char == '(' {
 			startIndex = i
 			break
 		} else {
 			startIndex = len(s)
 		}
+
 	}
 
 	// this the fill text inside braces
@@ -91,33 +104,52 @@ func Search_KeyWord(s string) (string, string, string, int) {
 }
 
 // this function check the valid keyword
-func Is_Valid(full_resul, key_word string, number int) bool {
+func Is_Valid(full_resul, key_word string, number int) (bool, bool) {
 	// convert the number to string
 	num_as_string := strconv.Itoa(number)
 	first_case := "(" + key_word + ")"
 	second_case := "(" + key_word + "," + num_as_string + ")"
 
-	// check now
-	if full_resul == first_case || full_resul == second_case {
-		return true
+	// this bool s just for removing braces or not
+	remove_braces_or_not := true
+
+	// check now the full result if it a valid flag or not
+	// all key words
+	if key_word == "cap" || key_word == "up" || key_word == "low" || key_word == "bin" || key_word == "hex" {
+		if full_resul == first_case || full_resul == second_case {
+			return true, true
+		}
+	} else {
+		remove_braces_or_not = false
 	}
 
-	return false
+	return false, remove_braces_or_not
 }
 
 // this function remove only braces and return valid string
-func Rmove_braces(sentenc, delimiter string) (string, string) {
+func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string, string) {
 	// in this case our delimiter contains any thing inside braces
 	// exemple delimiter = (cap,5) passed as params
-	result := strings.Replace(sentenc, delimiter, "", 1)
+	result := ""
+	bin_or_hex := ""
+
+	result = strings.Replace(sentenc, delimiter, "", 1)
 	result = Expand_Spaces(result)
+
 	// so let do some work for bin and hex
 	// extract the string befor braces asn well as is a binary or hex
 	arr := strings.Split(result, " ")
 	// after removing braces the last index is the bin_or_hex
-	bin_or_hex := arr[len(arr)-1]
+	bin_or_hex = arr[len(arr)-1]
 
-	return result, bin_or_hex
+	// now depend on remove_braces_or_not we can proced
+	if remove_braces_or_not {
+		return result, bin_or_hex
+	} else {
+		return sentenc, bin_or_hex
+	}
+
+	// return result, bin_or_hex
 }
 
 // this function edit the sentence depend the keyword and number
@@ -180,9 +212,9 @@ func Destribute_Sentences(line string) string {
 		for_braces, full_result, key_word, number := Search_KeyWord(sentenc)
 		fmt.Println(full_result, key_word, number)
 		// lets check if the keyword is valid
-		status := Is_Valid(full_result, key_word, number)
+		status, remove_braces_or_not := Is_Valid(full_result, key_word, number)
 		// lets modifid the sentence and remove the braces if exist
-		valid_sentence, bin_or_hex := Rmove_braces(sentenc, for_braces)
+		valid_sentence, bin_or_hex := Rmove_braces(sentenc, for_braces, remove_braces_or_not)
 		valid_sentence = Expand_Spaces(valid_sentence)
 		// lets send this valid sentence to manipulation depend on the keyword and status
 		manipulated_sentenc := Sentenc_Mainpulation(Expand_Spaces(result+valid_sentence), full_result, key_word, bin_or_hex, number, status)
@@ -227,8 +259,8 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string) string {
 	arr := strings.Split(sentenc, " ")
 	arr[len(arr)-1] = num_as_string
-	//result := strings.Replace(sentenc, arr[len(arr)-1], num_as_string, len(arr)-1)
-	//sory for this bin_or hex we dont need it
+	// result := strings.Replace(sentenc, arr[len(arr)-1], num_as_string, len(arr)-1)
+	// sory for this bin_or hex we dont need it
 	result := strings.Join(arr, " ")
 	return result
 }
@@ -292,4 +324,45 @@ func To_Lower(sentenc string, number int) string {
 
 	result := strings.Join(array_of_words, " ")
 	return result
+}
+
+// this function just for punctuations traitment
+
+func Punctuations(line string) string {
+	// art just for punctuations
+	punctuations := regexp.MustCompile(`\s([.,!?;:])`)
+	line = punctuations.ReplaceAllString(line, `$1`)
+
+	// now lets handle the single quote
+	single_quotes := regexp.MustCompile(`'([^']*)'`) // this exprestion handle all text insode
+	result := single_quotes.ReplaceAllStringFunc(line, func(match string) string {
+		// match is the text matched  including single quotes
+		// Extract the text between the quotes, trim spaces, and return the result
+		edited_match := strings.TrimSpace(match[1 : len(match)-1])
+		return "'" + edited_match + "'"
+	})
+
+	line = result
+
+	// now lets handle the vowle case
+	vowels := regexp.MustCompile(`([aeiouhAEIOUH])`)
+	expretion := regexp.MustCompile(`\b([aA])\s+([aeiouhAEIOUH])`)
+	line = expretion.ReplaceAllStringFunc(line, func(match string) string {
+		// match is the text matched, including "a" and the following word
+		// Extract the word after "a", trim spaces, and return the result
+		words := strings.Split(match, " ")
+		next_word := strings.ToLower(words[1])
+
+		// check if the a is upper or lower
+		if vowels.MatchString(next_word) {
+			if strings.HasPrefix(match, "A ") {
+				return "An " + words[1]
+			} else {
+				return "an " + words[1]
+			}
+		}
+		return match
+	})
+
+	return line
 }
