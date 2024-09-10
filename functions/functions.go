@@ -47,7 +47,7 @@ func Split_Text(s string) []string {
 }
 
 // this finction to search for keyword betwen braces
-func Search_KeyWord(s string) (string, string, int) {
+func Search_KeyWord(s string) (string, string, string, int) {
 	result := ""
 	key_Word := ""
 	Int_AsString := ""
@@ -64,8 +64,10 @@ func Search_KeyWord(s string) (string, string, int) {
 	}
 
 	// this the fill text inside braces
+	for_braces := s[startIndex:] // variable not edited for remove braces function
 	test := strings.Replace(s[startIndex:], " ", "", -1)
-	result = test
+	test1 := Expand_Spaces(test)
+	result = test1
 
 	// lests extract just keyword
 	for i := 0; i < len(result); i++ {
@@ -85,7 +87,7 @@ func Search_KeyWord(s string) (string, string, int) {
 	// convert the string into valid number
 	final_int, _ = strconv.Atoi(Int_AsString)
 
-	return result, key_Word, final_int
+	return for_braces, result, key_Word, final_int
 }
 
 // this function check the valid keyword
@@ -108,7 +110,7 @@ func Rmove_braces(sentenc, delimiter string) (string, string) {
 	// in this case our delimiter contains any thing inside braces
 	// exemple delimiter = (cap,5) passed as params
 	result := strings.Replace(sentenc, delimiter, "", 1)
-
+	result = Expand_Spaces(result)
 	// so let do some work for bin and hex
 	// extract the string befor braces asn well as is a binary or hex
 	arr := strings.Split(result, " ")
@@ -146,16 +148,17 @@ func Edit_Sentece(sentenc, key_word, bin_or_hex string, number int) string {
 }
 
 // this the sentence manipulation function
-func Sentenc_Mainpulation(valid_sentence, key_word, bin_or_hex string, number int, status bool) string {
+func Sentenc_Mainpulation(valid_sentence, full_result, key_word, bin_or_hex string, number int, status bool) string {
 	result := ""
 	// check the keyword if valid
 	if status {
-
-		result = "good"
+		fmt.Println(valid_sentence)
+		fmt.Println(status)
 		result = Edit_Sentece(valid_sentence, key_word, bin_or_hex, number)
 
 	} else {
-
+		fmt.Println(valid_sentence)
+		fmt.Println(status)
 		result = valid_sentence
 
 	}
@@ -174,15 +177,15 @@ func Destribute_Sentences(line string) string {
 	for i := 0; i < n; i++ {
 		sentenc := array_of_sentences[i]
 		// send this sentenc to search_keyword to find the keyword
-		full_result, key_word, number := Search_KeyWord(sentenc)
+		for_braces, full_result, key_word, number := Search_KeyWord(sentenc)
 		fmt.Println(full_result, key_word, number)
 		// lets check if the keyword is valid
 		status := Is_Valid(full_result, key_word, number)
 		// lets modifid the sentence and remove the braces if exist
-		valid_sentence, bin_or_hex := Rmove_braces(sentenc, full_result)
+		valid_sentence, bin_or_hex := Rmove_braces(sentenc, for_braces)
 		valid_sentence = Expand_Spaces(valid_sentence)
 		// lets send this valid sentence to manipulation depend on the keyword and status
-		manipulated_sentenc := Sentenc_Mainpulation(result+valid_sentence, key_word, bin_or_hex, number, status)
+		manipulated_sentenc := Sentenc_Mainpulation(Expand_Spaces(result+valid_sentence), full_result, key_word, bin_or_hex, number, status)
 		// refresh the result and concat it with  the valid sentence
 		result = ""
 		result += manipulated_sentenc + " "
@@ -193,11 +196,12 @@ func Destribute_Sentences(line string) string {
 
 // this function convert hex and binary  to dicimal
 
-func To_Dicimal(s, key_Word string) int {
+func To_Dicimal(bin_or_hex, key_Word string) int {
 	var result int64
 	switch key_Word {
 	case "bin":
-		result, err := strconv.ParseInt(s, 2, 64)
+		result, err := strconv.ParseInt(bin_or_hex, 2, 64)
+		fmt.Println(bin_or_hex)
 		// handle erors
 		if err != nil {
 			fmt.Println("erour", err)
@@ -205,7 +209,8 @@ func To_Dicimal(s, key_Word string) int {
 		}
 		return int(result)
 	case "hex":
-		result, err := strconv.ParseInt(s, 16, 64)
+		fmt.Println(bin_or_hex)
+		result, err := strconv.ParseInt(bin_or_hex, 16, 64)
 		// handle erors
 		if err != nil {
 			fmt.Println("erour", err)
@@ -220,7 +225,11 @@ func To_Dicimal(s, key_Word string) int {
 // this function for the bin and hex
 // it replace the bin_or_hex string by the num_as_atring in the sentenc
 func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string) string {
-	result := strings.Replace(sentenc, bin_or_hex, num_as_string, 1)
+	arr := strings.Split(sentenc, " ")
+	arr[len(arr)-1] = num_as_string
+	//result := strings.Replace(sentenc, arr[len(arr)-1], num_as_string, len(arr)-1)
+	//sory for this bin_or hex we dont need it
+	result := strings.Join(arr, " ")
 	return result
 }
 
