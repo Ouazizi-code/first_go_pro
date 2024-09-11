@@ -54,6 +54,15 @@ func Search_KeyWord(s string) (string, string, string, int) {
 	Int_AsString := ""
 	final_int := 0
 	startIndex := 0
+	/*
+		for i, char := range s {
+			if char == '(' {
+				startIndex = i
+				break
+			} else {
+				startIndex = len(s)
+			}
+		}*/
 
 	// lets loop throught the stering in reverse to extract the full result
 	for i := len(s) - 1; i >= 0; i-- {
@@ -121,6 +130,7 @@ func Is_Valid(full_resul, key_word string, number int) (bool, bool) {
 func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string, string) {
 	// in this case our delimiter contains any thing inside braces
 	// exemple delimiter = (cap,5) passed as params
+<<<<<<< HEAD
 	status := false // this condition for checking if ) exist or not
 	index := 0
 	for i := 0; i < len(sentenc); i++ {
@@ -135,6 +145,8 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 			status = true
 		}
 	}
+=======
+>>>>>>> refs/remotes/origin/main
 	result := ""
 	bin_or_hex := ""
 
@@ -148,6 +160,7 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 	bin_or_hex = arr[len(arr)-1]
 
 	// now depend on remove_braces_or_not we can proced
+<<<<<<< HEAD
 	if status {
 		if remove_braces_or_not {
 			return result, bin_or_hex
@@ -157,6 +170,15 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 	} else {
 		return sentenc, ""
 	}
+=======
+	if remove_braces_or_not {
+		return result, bin_or_hex
+	} else {
+		return sentenc, bin_or_hex
+	}
+
+	// return result, bin_or_hex
+>>>>>>> refs/remotes/origin/main
 }
 
 // this function edit the sentence depend the keyword and number
@@ -351,7 +373,11 @@ func Punctuations(line string) string {
 		// match is the text matched  including single quotes
 		// Extract the text between the quotes, trim spaces, and return the result
 		edited_match := strings.TrimSpace(match[1 : len(match)-1])
+<<<<<<< HEAD
 		return " " + "'" + edited_match + "'" + " "
+=======
+		return "'" + edited_match + "'"
+>>>>>>> refs/remotes/origin/main
 	})
 
 	line = result

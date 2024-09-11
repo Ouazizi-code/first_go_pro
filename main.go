@@ -57,9 +57,13 @@ func main() {
 	modifid_text := "" // this contain all text
 	for i, line := range lines {
 		// send this line to remove extra spaces
+<<<<<<< HEAD
 		//line = functions.Expand_Spaces(line)
 		line = modifid_text + line
 		modifid_text = ""
+=======
+		line = functions.Expand_Spaces(line)
+>>>>>>> refs/remotes/origin/main
 
 		// now send this line to manipulation zithout punctuations traitement
 		modifed_line := functions.Destribute_Sentences(line)
@@ -67,6 +71,7 @@ func main() {
 		// now send the modifed_line to punctuations traitment
 		final_line := functions.Punctuations(modifed_line)
 		// now append the modifed line
+<<<<<<< HEAD
 		if i == len(lines)-1 {
 			modifid_text += functions.Expand_Spaces(final_line)
 		} else {
@@ -74,6 +79,25 @@ func main() {
 		}
 
 	}
+=======
+
+		modifid_text += final_line + "\n"
+	}
+
+	/*for _, line := range lines {
+		// send this line to remove extra spaces
+		line = functions.Expand_Spaces(line)
+
+		// now send this line to manipulation zithout punctuations traitement
+		modifed_line := functions.Punctuations(line)
+
+		// now send the modifed_line to punctuations traitment
+		// final_line := functions.Punctuations(modifed_line)
+		// now append the modifed line
+
+		modifid_text += modifed_line + "\n"
+	}*/
+>>>>>>> refs/remotes/origin/main
 
 	Append_Text(modifid_text)
 }
