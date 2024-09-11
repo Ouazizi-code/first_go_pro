@@ -51,23 +51,31 @@ func main() {
 	// split the full text by a newline
 	lines := functions.Split_By_Newline(text)
 
-	//array := functions.Split_Text(text)
+	// array := functions.Split_Text(text)
 
 	// this for just  to append line by line
 	modifid_text := "" // this contain all text
-	for _, line := range lines {
+	for i, line := range lines {
 		// send this line to remove extra spaces
-		line = functions.Expand_Spaces(line)
-		//fmt.Println(line)
-		modifed_line := functions.Destribute_Sentences(line)
-		//fmt.Println(modifed_line)
-		// now append the modifed line
+		//line = functions.Expand_Spaces(line)
+		line = modifid_text + line
+		modifid_text = ""
 
-		modifid_text += modifed_line + "\n"
+		// now send this line to manipulation zithout punctuations traitement
+		modifed_line := functions.Destribute_Sentences(line)
+
+		// now send the modifed_line to punctuations traitment
+		final_line := functions.Punctuations(modifed_line)
+		// now append the modifed line
+		if i == len(lines)-1 {
+			modifid_text += functions.Expand_Spaces(final_line)
+		} else {
+			modifid_text += functions.Expand_Spaces(final_line) + "\n"
+		}
+
 	}
 
 	Append_Text(modifid_text)
-
 }
 
 // add comment
