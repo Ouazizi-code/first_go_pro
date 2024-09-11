@@ -7,27 +7,24 @@ import (
 	"strings"
 )
 
-func Test() {
-	fmt.Println("hi your modules is working")
-}
+
 
 // this function about removing extra spaces
 func Expand_Spaces(s string) string {
-	result := strings.Fields(s)
-	valid_Text := strings.Join(result, " ")
+	// the field work with spaces or more spaces
+	result := strings.Fields(s) 
+	valid_Text := strings.TrimSpace(strings.Join(result, " "))
 
 	return valid_Text
 }
 
 // this function split text by newline
-
 func Split_By_Newline(text string) []string {
 	array := strings.Split(text, "\n")
 	return array
 }
 
 // this function split text from a )
-
 func Split_Text(s string) []string {
 	result := []string{}
 	startIndex := 0
@@ -54,15 +51,6 @@ func Search_KeyWord(s string) (string, string, string, int) {
 	Int_AsString := ""
 	final_int := 0
 	startIndex := 0
-	/*
-		for i, char := range s {
-			if char == '(' {
-				startIndex = i
-				break
-			} else {
-				startIndex = len(s)
-			}
-		}*/
 
 	// lets loop throught the stering in reverse to extract the full result
 	for i := len(s) - 1; i >= 0; i-- {
@@ -78,9 +66,9 @@ func Search_KeyWord(s string) (string, string, string, int) {
 
 	// this the fill text inside braces
 	for_braces := s[startIndex:] // variable not edited for remove braces function
-	test := strings.Replace(s[startIndex:], " ", "", -1)
-	test1 := Expand_Spaces(test)
-	result = test1
+	result= strings.Replace(s[startIndex:], " ", "", -1)
+	result= Expand_Spaces(result)
+	
 
 	// lests extract just keyword
 	for i := 0; i < len(result); i++ {
@@ -130,6 +118,20 @@ func Is_Valid(full_resul, key_word string, number int) (bool, bool) {
 func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string, string) {
 	// in this case our delimiter contains any thing inside braces
 	// exemple delimiter = (cap,5) passed as params
+	status := false // this condition for checking if ) exist or not
+	index := 0
+	for i := 0; i < len(sentenc); i++ {
+		char := sentenc[i]
+		if char == '(' {
+			index = i
+		}
+	}
+	for i := index; i < len(sentenc); i++ {
+		char := sentenc[i]
+		if char == ')' {
+			status = true
+		}
+	}
 	result := ""
 	bin_or_hex := ""
 
@@ -143,13 +145,15 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 	bin_or_hex = arr[len(arr)-1]
 
 	// now depend on remove_braces_or_not we can proced
-	if remove_braces_or_not {
-		return result, bin_or_hex
+	if status {
+		if remove_braces_or_not {
+			return result, bin_or_hex
+		} else {
+			return sentenc, bin_or_hex
+		}
 	} else {
-		return sentenc, bin_or_hex
+		return sentenc, ""
 	}
-
-	// return result, bin_or_hex
 }
 
 // this function edit the sentence depend the keyword and number
@@ -182,17 +186,11 @@ func Edit_Sentece(sentenc, key_word, bin_or_hex string, number int) string {
 // this the sentence manipulation function
 func Sentenc_Mainpulation(valid_sentence, full_result, key_word, bin_or_hex string, number int, status bool) string {
 	result := ""
-	// check the keyword if valid
+	// check the keyword if it  valid
 	if status {
-		fmt.Println(valid_sentence)
-		fmt.Println(status)
 		result = Edit_Sentece(valid_sentence, key_word, bin_or_hex, number)
-
 	} else {
-		fmt.Println(valid_sentence)
-		fmt.Println(status)
 		result = valid_sentence
-
 	}
 	return result
 }
@@ -202,25 +200,27 @@ func Destribute_Sentences(line string) string {
 	// lets splite our line into small sentences from our delimiter
 	array_of_sentences := Split_Text(line)
 	n := len(array_of_sentences)
-	fmt.Println(array_of_sentences, n)
+	
 	result := ""
 
 	// now lets destribute our sentences to manipulate with a for loop
 	for i := 0; i < n; i++ {
+
 		sentenc := array_of_sentences[i]
 		// send this sentenc to search_keyword to find the keyword
 		for_braces, full_result, key_word, number := Search_KeyWord(sentenc)
-		fmt.Println(full_result, key_word, number)
 		// lets check if the keyword is valid
 		status, remove_braces_or_not := Is_Valid(full_result, key_word, number)
 		// lets modifid the sentence and remove the braces if exist
 		valid_sentence, bin_or_hex := Rmove_braces(sentenc, for_braces, remove_braces_or_not)
-		valid_sentence = Expand_Spaces(valid_sentence)
+		// valid_sentence = Expand_Spaces(valid_sentence)
 		// lets send this valid sentence to manipulation depend on the keyword and status
-		manipulated_sentenc := Sentenc_Mainpulation(Expand_Spaces(result+valid_sentence), full_result, key_word, bin_or_hex, number, status)
+		manipulated_sentenc := Sentenc_Mainpulation(result+valid_sentence, full_result, key_word, bin_or_hex, number, status)
 		// refresh the result and concat it with  the valid sentence
 		result = ""
+
 		result += manipulated_sentenc + " "
+
 	}
 
 	return result
@@ -233,7 +233,7 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 	switch key_Word {
 	case "bin":
 		result, err := strconv.ParseInt(bin_or_hex, 2, 64)
-		fmt.Println(bin_or_hex)
+		
 		// handle erors
 		if err != nil {
 			fmt.Println("erour", err)
@@ -241,7 +241,7 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 		}
 		return int(result)
 	case "hex":
-		fmt.Println(bin_or_hex)
+		
 		result, err := strconv.ParseInt(bin_or_hex, 16, 64)
 		// handle erors
 		if err != nil {
@@ -259,18 +259,18 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string) string {
 	arr := strings.Split(sentenc, " ")
 	arr[len(arr)-1] = num_as_string
-	// result := strings.Replace(sentenc, arr[len(arr)-1], num_as_string, len(arr)-1)
+	
 	// sory for this bin_or hex we dont need it
 	result := strings.Join(arr, " ")
 	return result
 }
 
 // this a capitalise function
-
 func Capitalize(sentenc string, number int) string {
 	array_of_words := strings.Split(sentenc, " ")
 	// loop throught the array
 	n := len(array_of_words) - 1
+
 	// update the number if it is grather the len(array_of_words) and if = 0
 	if number == 0 || number == 1 {
 		number = 1
@@ -279,6 +279,10 @@ func Capitalize(sentenc string, number int) string {
 		number = len(array_of_words)
 	}
 	for i := n; i > n-number; i-- {
+		if array_of_words[i] == "\n" {
+			continue
+		}
+
 		array_of_words[i] = strings.Title(array_of_words[i])
 	}
 
@@ -339,7 +343,7 @@ func Punctuations(line string) string {
 		// match is the text matched  including single quotes
 		// Extract the text between the quotes, trim spaces, and return the result
 		edited_match := strings.TrimSpace(match[1 : len(match)-1])
-		return "'" + edited_match + "'"
+		return " " + "'" + edited_match + "'" + " "
 	})
 
 	line = result
@@ -365,4 +369,19 @@ func Punctuations(line string) string {
 	})
 
 	return line
+}
+
+// this the final function that append the newlines
+
+func Append_New_Line(text string)(string){
+	split_text := strings.Split(text,"~")
+	arr := []string {}
+	for _, word := range split_text {
+		word = strings.TrimSpace(word)
+		arr = append(arr, word)
+	}
+	splited_text := strings.Join(arr," "+"\n")
+
+	return splited_text
+
 }
