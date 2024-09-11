@@ -11,8 +11,12 @@ import (
 
 // this function about removing extra spaces
 func Expand_Spaces(s string) string {
+<<<<<<< HEAD
 	// the field work with spaces or more spaces
 	result := strings.Fields(s) 
+=======
+	result := strings.Fields(s)
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 	valid_Text := strings.TrimSpace(strings.Join(result, " "))
 
 	return valid_Text
@@ -118,6 +122,10 @@ func Is_Valid(full_resul, key_word string, number int) (bool, bool) {
 func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string, string) {
 	// in this case our delimiter contains any thing inside braces
 	// exemple delimiter = (cap,5) passed as params
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 	status := false // this condition for checking if ) exist or not
 	index := 0
 	for i := 0; i < len(sentenc); i++ {
@@ -132,6 +140,11 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 			status = true
 		}
 	}
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> refs/remotes/origin/main
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 	result := ""
 	bin_or_hex := ""
 
@@ -145,15 +158,34 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 	bin_or_hex = arr[len(arr)-1]
 
 	// now depend on remove_braces_or_not we can proced
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 	if status {
 		if remove_braces_or_not {
 			return result, bin_or_hex
 		} else {
 			return sentenc, bin_or_hex
 		}
+<<<<<<< HEAD
+=======
 	} else {
 		return sentenc, ""
 	}
+=======
+	if remove_braces_or_not {
+		return result, bin_or_hex
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
+	} else {
+		return sentenc, ""
+	}
+<<<<<<< HEAD
+=======
+
+	// return result, bin_or_hex
+>>>>>>> refs/remotes/origin/main
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 }
 
 // this function edit the sentence depend the keyword and number
@@ -343,7 +375,15 @@ func Punctuations(line string) string {
 		// match is the text matched  including single quotes
 		// Extract the text between the quotes, trim spaces, and return the result
 		edited_match := strings.TrimSpace(match[1 : len(match)-1])
+<<<<<<< HEAD
 		return " " + "'" + edited_match + "'" + " "
+=======
+<<<<<<< HEAD
+		return " " + "'" + edited_match + "'" + " "
+=======
+		return "'" + edited_match + "'"
+>>>>>>> refs/remotes/origin/main
+>>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 	})
 
 	line = result
