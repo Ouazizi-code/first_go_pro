@@ -65,25 +65,9 @@ func main() {
 	// split the full text by a newline
 	lines := functions.Split_By_Newline(text)
 
-<<<<<<< HEAD
 	modifid_text := ""
 	// lets loop throught all lines and send the to manipulation
 	for _, line := range lines {
-=======
-	// array := functions.Split_Text(text)
-
-	// this for just  to append line by line
-	modifid_text := "" // this contain all text
-	for i, line := range lines {
-		// send this line to remove extra spaces
-<<<<<<< HEAD
-		//line = functions.Expand_Spaces(line)
-		line = modifid_text + line
-		modifid_text = ""
-=======
-		line = functions.Expand_Spaces(line)
->>>>>>> refs/remotes/origin/main
->>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 
 		// up dtae our line with previous text
 		line = modifid_text + " " + line
@@ -96,21 +80,8 @@ func main() {
 
 		// now send the modifed_line to punctuations traitment
 		final_line := functions.Punctuations(modifed_line)
-<<<<<<< HEAD
 		// now lets put a delimeter "~" to know the end of line
 		modifid_text += functions.Expand_Spaces(final_line) + "~"
-=======
-		// now append the modifed line
-<<<<<<< HEAD
-		if i == len(lines)-1 {
-			modifid_text += functions.Expand_Spaces(final_line)
-		} else {
-			modifid_text += functions.Expand_Spaces(final_line) + "\n"
-		}
-
-	}
-=======
->>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 
 	}
 
@@ -118,23 +89,8 @@ func main() {
 	// send this modefied text to add newlines for a valid  format
 	final_text := functions.Append_New_Line(modifid_text)
 
-<<<<<<< HEAD
 	// now simply add our final text to result.txt
 	Append_Text(final_text)
-=======
-		// now send this line to manipulation zithout punctuations traitement
-		modifed_line := functions.Punctuations(line)
-
-		// now send the modifed_line to punctuations traitment
-		// final_line := functions.Punctuations(modifed_line)
-		// now append the modifed line
-
-		modifid_text += modifed_line + "\n"
-	}*/
->>>>>>> refs/remotes/origin/main
-
-	Append_Text(modifid_text)
->>>>>>> 7849215d12c2f5e3a1d555b403ace25e907804a0
 }
 
 ////////////////////////***finaly  the project is done**** /////////////////////////////
