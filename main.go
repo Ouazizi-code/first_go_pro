@@ -19,6 +19,7 @@ func Extract_Text() string {
 
 	// convert the content into string
 	text := string(content)
+
 	return text
 }
 
@@ -35,7 +36,7 @@ func Append_Text(text string) {
 	// remove etra spaces and new lines
 	text = strings.TrimSpace(text)
 	// lets write the text
-	i, err := file.WriteString(text)
+	i, err := file.WriteString(text + "\n")
 	i++
 	// handle the errors
 	if err != nil {
@@ -62,35 +63,47 @@ func main() {
 	}
 
 	text := Extract_Text()
+	//fmt.Println(text)
 	// split the full text by a newline
-	lines := functions.Split_By_Newline(text)
-
-	modifid_text := ""
+	line := functions.Split_By_Newline(text)
+	//fmt.Println(lines,len(lines))
+	
 	// lets loop throught all lines and send the to manipulation
-	for _, line := range lines {
+	//for _, line := range lines {
 
 		// up dtae our line with previous text
-		line = modifid_text + " " + line
+		//line := modifid_text + " " + line
 
 		// clear the modefied text
-		modifid_text = ""
+		//fmt.Println(modifid_text)
+		
 
 		// now send this line to manipulation without punctuations traitement
-		modifed_line := functions.Destribute_Sentences(line)
+		vowled_line := functions.Vowles_manioulation(line)
+		//fmt.Println(vowled_line)
+		punctuationed_line := functions.Punctuations(vowled_line)
+		//fmt.Println(punctuationed_line)
 
 		// now send the modifed_line to punctuations traitment
-		final_line := functions.Punctuations(modifed_line)
+		final_line := functions.Destribute_Sentences(punctuationed_line)
 		// now lets put a delimeter "~" to know the end of line
-		modifid_text += functions.Expand_Spaces(final_line) + "~"
+		//modifid_text += functions.Expand_Spaces(final_line) + "~"
 
-	}
+	//}
 
-	// now we have this modified text 
+	// now we have the modefid text
+	// lets send it to single cote manipulation
+	//modifid_text = functions.Real_punctions(modifid_text)
+
+	single_quoteed_line := functions.Single_Quote(final_line)
+	fmt.Println(single_quoteed_line)
+
+	// now we have this modified text
 	// send this modefied text to add newlines for a valid  format
-	final_text := functions.Append_New_Line(modifid_text)
+	//final_text := functions.Append_New_Line(Single_Quoteed_text)
 
 	// now simply add our final text to result.txt
-	Append_Text(final_text)
+	//Append_Text(final_text)
 }
 
 ////////////////////////*** finaly  the project is done ****/////////////////////////////

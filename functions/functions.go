@@ -5,27 +5,46 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
-
-
 
 // this function about removing extra spaces
 func Expand_Spaces(s string) string {
 	// the field work with spaces or more spaces
-	result := strings.Fields(s) 
-	valid_Text := strings.TrimSpace(strings.Join(result, " "))
+	result := strings.Fields(s)
+	valid_line := strings.TrimSpace(strings.Join(result, " "))
 
-	return valid_Text
+	return valid_line
 }
 
-// this function split text by newline
-func Split_By_Newline(text string) []string {
-	array := strings.Split(text, "\n")
-	return array
+// this function split line by newline
+func Split_By_Newline(text string) string{
+	
+	test := ""
+	
+	
+	for i := 0 ; i < len(text); i++ {
+		
+		char := text[i]
+		test += string(char)
+		if char == '\n' && i  > 1 {
+			test += "~"
+		}
+		
+		
+	}
+	test1 := strings.Fields(test)
+	test2 := strings.Join(test1," ")
+	/*fmt.Println(text)
+	fmt.Println(test)
+	fmt.Println(test1,len(test1))*/
+	fmt.Println(test2)
+	
+	return test2
 }
 
-// this function split text from a )
-func Split_Text(s string) []string {
+// this function split line from a )
+func Split_line(s string) []string {
 	result := []string{}
 	startIndex := 0
 	endIndex := 0
@@ -34,11 +53,11 @@ func Split_Text(s string) []string {
 	for i, char := range s {
 		if char == delemeter {
 			endIndex = i
-			result = append(result, Expand_Spaces(s[startIndex:endIndex+1]))
+			result = append(result, s[startIndex:endIndex+1])
 			startIndex = endIndex + 1
 		}
 	}
-	// append the rest text in the end if exist
+	// append the rest line in the end if exist
 	result = append(result, Expand_Spaces(s[startIndex:]))
 
 	return result
@@ -46,12 +65,12 @@ func Split_Text(s string) []string {
 
 // this finction to search for keyword betwen braces
 func Search_KeyWord(s string) (string, string, string, int) {
-	result := ""
+	flag := ""
 	key_Word := ""
 	Int_AsString := ""
 	final_int := 0
 	startIndex := 0
-
+	end_index := 0
 	// lets loop throught the stering in reverse to extract the full result
 	for i := len(s) - 1; i >= 0; i-- {
 		char := s[i]
@@ -64,35 +83,41 @@ func Search_KeyWord(s string) (string, string, string, int) {
 
 	}
 
-	// this the fill text inside braces
+	// this the fill line inside braces
 	for_braces := s[startIndex:] // variable not edited for remove braces function
-	result= strings.Replace(s[startIndex:], " ", "", -1)
-	result= Expand_Spaces(result)
+	flag = strings.Replace(s[startIndex:], " ", "", -1)
+	//result = Expand_Spaces(result)
+	startIndex = 0
+	end_index = 0
 	
-
 	// lests extract just keyword
-	for i := 0; i < len(result); i++ {
-		char := result[i]
-		if char >= 'a' && char <= 'z' {
-			key_Word += string(char)
+	for i := 0; i < len(for_braces); i++ {
+		char := for_braces[i]
+		if char >= 'a' && char <= 'z'  {
+			startIndex = i
+		}
+		if char == ',' || char == ')'|| char >= '0' && char <= '9'{
+			end_index = i-1
 		}
 	}
+	key_Word = for_braces[startIndex:end_index]
 
 	// lets extract thhe number inside the braces
-	for i := 0; i < len(result); i++ {
-		char := result[i]
+	for i := 0; i < len(for_braces); i++ {
+		char := for_braces[i]
 		if char >= '0' && char <= '9' {
 			Int_AsString += string(char)
 		}
 	}
 	// convert the string into valid number
 	final_int, _ = strconv.Atoi(Int_AsString)
+	fmt.Println(for_braces,flag,key_Word,final_int)
 
-	return for_braces, result, key_Word, final_int
+	return for_braces, flag, key_Word, final_int
 }
 
 // this function check the valid keyword
-func Is_Valid(full_resul, key_word string, number int) (bool, bool) {
+func Is_Valid(flag, key_word string, number int) (bool, bool) {
 	// convert the number to string
 	num_as_string := strconv.Itoa(number)
 	first_case := "(" + key_word + ")"
@@ -103,8 +128,17 @@ func Is_Valid(full_resul, key_word string, number int) (bool, bool) {
 
 	// check now the full result if it a valid flag or not
 	// all key words
-	if key_word == "cap" || key_word == "up" || key_word == "low" || key_word == "bin" || key_word == "hex" {
-		if full_resul == first_case || full_resul == second_case {
+	if key_word == "cap" || key_word == "up" || key_word == "low" {
+		if flag == first_case || flag == second_case {
+			return true, true
+		}
+	} else {
+		remove_braces_or_not = false
+	}
+
+	// check the bin and hex alone
+	if key_word == "hex" || key_word == "bin" {
+		if flag == first_case {
 			return true, true
 		}
 	} else {
@@ -132,17 +166,23 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 			status = true
 		}
 	}
-	result := ""
+
 	bin_or_hex := ""
 
+	result := ""
+
 	result = strings.Replace(sentenc, delimiter, "", 1)
-	result = Expand_Spaces(result)
+	result = strings.TrimSpace(result)
 
 	// so let do some work for bin and hex
 	// extract the string befor braces asn well as is a binary or hex
 	arr := strings.Split(result, " ")
+	//fmt.Println(arr)
 	// after removing braces the last index is the bin_or_hex
 	bin_or_hex = arr[len(arr)-1]
+	if bin_or_hex == "" {
+		bin_or_hex = arr[len(arr)-1]
+	}
 
 	// now depend on remove_braces_or_not we can proced
 	if status {
@@ -198,9 +238,9 @@ func Sentenc_Mainpulation(valid_sentence, full_result, key_word, bin_or_hex stri
 // this function destribute each sentence to manipulate
 func Destribute_Sentences(line string) string {
 	// lets splite our line into small sentences from our delimiter
-	array_of_sentences := Split_Text(line)
+	array_of_sentences := Split_line(line)
 	n := len(array_of_sentences)
-	
+
 	result := ""
 
 	// now lets destribute our sentences to manipulate with a for loop
@@ -208,14 +248,13 @@ func Destribute_Sentences(line string) string {
 
 		sentenc := array_of_sentences[i]
 		// send this sentenc to search_keyword to find the keyword
-		for_braces, full_result, key_word, number := Search_KeyWord(sentenc)
+		for_braces, flag, key_word, number := Search_KeyWord(sentenc)
 		// lets check if the keyword is valid
-		status, remove_braces_or_not := Is_Valid(full_result, key_word, number)
+		status, remove_braces_or_not := Is_Valid(flag, key_word, number)
 		// lets modifid the sentence and remove the braces if exist
 		valid_sentence, bin_or_hex := Rmove_braces(sentenc, for_braces, remove_braces_or_not)
-		// valid_sentence = Expand_Spaces(valid_sentence)
 		// lets send this valid sentence to manipulation depend on the keyword and status
-		manipulated_sentenc := Sentenc_Mainpulation(result+valid_sentence, full_result, key_word, bin_or_hex, number, status)
+		manipulated_sentenc := Sentenc_Mainpulation(result+valid_sentence, flag, key_word, bin_or_hex, number, status)
 		// refresh the result and concat it with  the valid sentence
 		result = ""
 
@@ -233,7 +272,6 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 	switch key_Word {
 	case "bin":
 		result, err := strconv.ParseInt(bin_or_hex, 2, 64)
-		
 		// handle erors
 		if err != nil {
 			fmt.Println("erour", err)
@@ -241,7 +279,7 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 		}
 		return int(result)
 	case "hex":
-		
+
 		result, err := strconv.ParseInt(bin_or_hex, 16, 64)
 		// handle erors
 		if err != nil {
@@ -259,7 +297,7 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string) string {
 	arr := strings.Split(sentenc, " ")
 	arr[len(arr)-1] = num_as_string
-	
+
 	// sory for this bin_or hex we dont need it
 	result := strings.Join(arr, " ")
 	return result
@@ -267,7 +305,7 @@ func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string) string {
 
 // this a capitalise function
 func Capitalize(sentenc string, number int) string {
-	array_of_words := strings.Split(sentenc, " ")
+	array_of_words := strings.Fields(sentenc)
 	// loop throught the array
 	n := len(array_of_words) - 1
 
@@ -275,14 +313,10 @@ func Capitalize(sentenc string, number int) string {
 	if number == 0 || number == 1 {
 		number = 1
 	}
-	if number > len(array_of_words) {
-		number = len(array_of_words)
+	if number > n {
+		number = n+1
 	}
 	for i := n; i > n-number; i-- {
-		if array_of_words[i] == "\n" {
-			continue
-		}
-
 		array_of_words[i] = strings.Title(array_of_words[i])
 	}
 
@@ -292,15 +326,18 @@ func Capitalize(sentenc string, number int) string {
 
 // this function to uper the words
 func To_Upper(sentenc string, number int) string {
-	array_of_words := strings.Split(sentenc, " ")
+	// lets remove extra spaces
+
+	// array_of_words := strings.Split(sentenc, " ")
+	array_of_words := strings.Fields(sentenc)
 	// loop throught the array
 	n := len(array_of_words) - 1
 	// update the number if it is grather the len(array_of_words) and if = 0
 	if number == 0 || number == 1 {
 		number = 1
 	}
-	if number > len(array_of_words) {
-		number = len(array_of_words)
+	if number > n {
+		number = n+1
 	}
 	for i := n; i > n-number; i-- {
 		array_of_words[i] = strings.ToUpper(array_of_words[i])
@@ -312,15 +349,15 @@ func To_Upper(sentenc string, number int) string {
 
 // this function to lower the words
 func To_Lower(sentenc string, number int) string {
-	array_of_words := strings.Split(sentenc, " ")
+	array_of_words := strings.Fields(sentenc)
 	// loop throught the array
 	n := len(array_of_words) - 1
 	// update the number if it is grather the len(array_of_words) and if = 0
 	if number == 0 || number == 1 {
 		number = 1
 	}
-	if number > len(array_of_words) {
-		number = len(array_of_words)
+	if number > n {
+		number = n+1
 	}
 	for i := n; i > n-number; i-- {
 		array_of_words[i] = strings.ToLower(array_of_words[i])
@@ -332,38 +369,61 @@ func To_Lower(sentenc string, number int) string {
 
 // this function just for punctuations traitment
 
-func Punctuations(line string) string {
-	// art just for punctuations
-	punctuations := regexp.MustCompile(`\s([.,!?;:])`)
-	line = punctuations.ReplaceAllString(line, `$1`)
+func Vowles_manioulation(line string) string {
+	result := ""
+	// this function Correct Indefinite article
+	words := strings.Split(line, " ")
+	vowels := "aeiouhAEIOUH"
+	for i, word := range words {
+		trimmedWord := strings.TrimSpace(word)
+		if trimmedWord == "a" && i+1 < len(words) {
+			nextWord := strings.TrimSpace(words[i+1])
+			if strings.ContainsRune(vowels, rune(nextWord[0])) {
+				words[i] = "an"
+			}
+		}
+		if trimmedWord == "A" && i+1 < len(words) {
+			nextWord := strings.TrimSpace(words[i+1])
+			if strings.ContainsRune(vowels, rune(nextWord[0])) {
+				words[i] = "An"
+			}
+		}
+	}
+	result = strings.Join(words, " ")
+	return result
+}
 
+// this function handle the single quote only
+func Single_Quote(line string) string {
 	// now lets handle the single quote
-	single_quotes := regexp.MustCompile(`'([^']*)'`) // this exprestion handle all text insode
-	result := single_quotes.ReplaceAllStringFunc(line, func(match string) string {
-		// match is the text matched  including single quotes
-		// Extract the text between the quotes, trim spaces, and return the result
-		edited_match := strings.TrimSpace(match[1 : len(match)-1])
-		return " " + "'" + edited_match + "'" + " "
+	// single_quotes := regexp.MustCompile(`\s'([^']*)'\s`) // this exprestion handle all line inside
+	// result := single_quotes.ReplaceAllStringFunc(line, func(match string) string {
+	// 	// match is the line matched  including single quotes
+	// 	// Extract the line between the quotes, trim spaces, and return the result
+	// 	edited_match := strings.Replace(match," ","",-1)
+	// 	//edited_match := strings.Join(test, "")
+	// 	return " " + edited_match + " "
+	// })
+
+	// line = result
+
+	// return line
+
+	singleQuotesRegex := regexp.MustCompile(`\s'[^']*'`)
+
+	// Replace the single-quoted text with trimmed content
+	line = singleQuotesRegex.ReplaceAllStringFunc(line, func(match string) string {
+		// Remove surrounding spaces and single quotes
+		content := strings.TrimSpace(match)
+		trimmedContent := strings.ReplaceAll(content, " ", "")
+		return " " + trimmedContent + " "
 	})
 
-	line = result
-
-	// now lets handle the vowle case
-	vowels := regexp.MustCompile(`([aeiouhAEIOUH])`)
-	expretion := regexp.MustCompile(`\b([aA])\s+([aeiouhAEIOUH])`)
-	line = expretion.ReplaceAllStringFunc(line, func(match string) string {
-		// match is the text matched, including "a" and the following word
-		// Extract the word after "a", trim spaces, and return the result
-		words := strings.Split(match, " ")
-		next_word := strings.ToLower(words[1])
-
-		// check if the a is upper or lower
-		if vowels.MatchString(next_word) {
-			if strings.HasPrefix(match, "A ") {
-				return "An " + words[1]
-			} else {
-				return "an " + words[1]
-			}
+	// Regular expression to match single quoted text that are not surrounded by spaces
+	line = regexp.MustCompile(`'\S+[^']*'`).ReplaceAllStringFunc(line, func(match string) string {
+		// Do not modify if it contains contractions or possessives
+		if strings.Contains(match, "'") && !strings.Contains(match, " ") {
+			return match
 		}
 		return match
 	})
@@ -371,17 +431,56 @@ func Punctuations(line string) string {
 	return line
 }
 
+// is punctuation
+func IS_Punctuation(char string) bool {
+	puncts := ".,!?;:"
+
+	return strings.Contains(puncts, (char))
+}
+
+// this function it really manipulate punctuations
+func Punctuations(text string) string {
+	// Remove spaces before punctuation marks
+	
+
+	// Define a punctuation mark
+	puncts := regexp.MustCompile(`\s([.,;:!?])\s`)
+
+	// Replace  punctuation mark with a single instance
+	text = puncts.ReplaceAllString(text, "$1")
+
+	// Handle spacing around punctuation marks
+	for i := range text {
+		if IS_Punctuation(string(text[i])) && i < len(text)-1 && (unicode.IsLetter(rune(text[i+1])) || unicode.IsDigit(rune(text[i+1]))) {
+			text = text[:i+1] + " " + text[i+1:]
+		}
+	}
+
+	// this just to smplify the code 
+	to_replace := strings.NewReplacer(
+		 " .", ".",
+		 " ,", ",",
+		 " ;", ";",
+		 " :", ":",
+		 " !", "!",
+		 " ?", "?",
+	)
+	text = to_replace.Replace(text)
+	
+
+	return text
+}
+
 // this the final function that append the newlines
 
-func Append_New_Line(text string)(string){
-	split_text := strings.Split(text,"~")
-	arr := []string {}
-	for _, word := range split_text {
+func Append_New_Line(line string) string {
+	split_line := strings.Split(line, "~")
+	arr := []string{}
+	for _, word := range split_line {
 		word = strings.TrimSpace(word)
 		arr = append(arr, word)
 	}
-	splited_text := strings.Join(arr," "+"\n")
+	splited_line := strings.Join(arr, " "+"\n")
 
-	return splited_text
-
+	return splited_line
 }
