@@ -62,48 +62,54 @@ func main() {
 		return
 	}
 
+	// lets extract our text
 	text := Extract_Text()
-	//fmt.Println(text)
+
 	// split the full text by a newline
 	line := functions.Split_By_Newline(text)
-	//fmt.Println(lines,len(lines))
+	fmt.Println(line, "70")
+	line_befor_traitment := functions.Befor_Traitment(line)
+	fmt.Println(line_befor_traitment,"72")
+
+	vowled_line := functions.Vowles_manioulation(line)
+
+	// now send this voweled line to punctuations manipulation
+	punctuationed_line := functions.Punctuations(vowled_line)
+
+	// now send the punctuationed_line to ingle_Quote traitment
+	single_quoteed_line := functions.Single_Quote(punctuationed_line)
+	single_quoteed_line = functions.Expand_Spaces(single_quoteed_line)
 	
-	// lets loop throught all lines and send the to manipulation
-	//for _, line := range lines {
+	
+	//array_of_sentences := functions.Split_line(single_quoteed_line)
 
-		// up dtae our line with previous text
-		//line := modifid_text + " " + line
+	indexs_of_newlines := functions.Detect_Newline(line)
+	fmt.Println(indexs_of_newlines, "72")
+	
 
-		// clear the modefied text
-		//fmt.Println(modifid_text)
-		
+	////////////////////////////////////////////////////////////////////////
+	//return
+	// now send this line to vowel manipulation
+	/*vowled_line := functions.Vowles_manioulation(line)
 
-		// now send this line to manipulation without punctuations traitement
-		vowled_line := functions.Vowles_manioulation(line)
-		//fmt.Println(vowled_line)
-		punctuationed_line := functions.Punctuations(vowled_line)
-		//fmt.Println(punctuationed_line)
+	// now send this voweled line to punctuations manipulation
+	punctuationed_line := functions.Punctuations(vowled_line)
 
-		// now send the modifed_line to punctuations traitment
-		final_line := functions.Destribute_Sentences(punctuationed_line)
-		// now lets put a delimeter "~" to know the end of line
-		//modifid_text += functions.Expand_Spaces(final_line) + "~"
+	// now send the punctuationed_line to ingle_Quote traitment
+	single_quoteed_line := functions.Single_Quote(punctuationed_line)*/
+	single_quoteed_line = functions.Expand_Spaces(single_quoteed_line)
 
-	//}
+	// now send the single_quoteed_line to manipulation traitment
+	manipulated_line := functions.Destribute_Sentences(single_quoteed_line)
+	fmt.Println(manipulated_line, "88")
+	// now we have this manipulated_line
+	// send this manipulated_line  to add newlines for a valid  format
 
-	// now we have the modefid text
-	// lets send it to single cote manipulation
-	//modifid_text = functions.Real_punctions(modifid_text)
-
-	single_quoteed_line := functions.Single_Quote(final_line)
-	fmt.Println(single_quoteed_line)
-
-	// now we have this modified text
-	// send this modefied text to add newlines for a valid  format
-	//final_text := functions.Append_New_Line(Single_Quoteed_text)
-
+	////////////////////////////////////////////////////////////////////////////////////////
 	// now simply add our final text to result.txt
-	//Append_Text(final_text)
+
+	final_text := functions.Append_New_Line(manipulated_line, indexs_of_newlines)
+	Append_Text(final_text)
 }
 
 ////////////////////////*** finaly  the project is done ****/////////////////////////////
