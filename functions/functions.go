@@ -26,7 +26,7 @@ func Split_By_Newline(text string) string {
 		char := text[i]
 		result += string(char)
 		if char == '\n' && i > 1 {
-			result += "~"
+			result += "~ "
 		}
 
 	}
@@ -161,11 +161,15 @@ func Is_Valid(flag, key_word string, number int) (bool, bool) {
 }
 
 // this function remove only braces and return valid string
-func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string, string, int, int) {
+func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string, string, int, bool) {
 	// in this case our delimiter contains any thing inside braces
 	// exemple delimiter = (cap,5) passed as params
 	status := false // this condition for checking if ) exist or not
 	index := 0
+	bin_or_hex := ""
+	index_of_bin_or_hex := 0
+	result := ""
+	add_newline := false
 	for i := 0; i < len(sentenc); i++ {
 		char := sentenc[i]
 		if char == '(' {
@@ -179,21 +183,15 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 		}
 	}
 
-	bin_or_hex := ""
-
-	result := ""
-
+	// lets remove our bracres that the delimetr in this case
 	result = strings.Replace(sentenc, delimiter, "", 1)
 	result = strings.TrimSpace(result)
 
 	// so let do some work for bin and hex
 	// extract the string befor braces asn well as is a binary or hex
-
-	arr := strings.Split(result, " ")
+	arr := strings.Fields(result)
 
 	// lets jump over "\n" to extraxt our bin_or_hex text
-	index_of_bin_or_hex := 0
-	index_of_others := 0
 	for i := len(arr) - 1; i >= 0; i-- {
 		word := arr[i]
 		if word != "~" {
@@ -204,73 +202,60 @@ func Rmove_braces(sentenc, delimiter string, remove_braces_or_not bool) (string,
 		}
 	}
 
-	// this for for other traitements
-	for i := len(result) - 1; i >= 0; i-- {
-		char := result[i]
-		if char == '~' {
-			index_of_others++
-
-		} else {
-			break
-		}
-	}
 	// after removing braces the last index is the bin_or_hex
-	uncleaned_bin_or_hex := arr[index_of_bin_or_hex]
-
-	for _, char := range uncleaned_bin_or_hex {
-		if char != '~' {
-			bin_or_hex += string(char)
-		}
+	// just let be sure there are no braces
+	bin_or_hex = arr[index_of_bin_or_hex]
+	// check our bin or hex  if contain newline
+	if bin_or_hex[0] == '~' {
+		add_newline = true
 	}
-
 	// now depend on remove_braces_or_not we can proced
 	if status {
 		if remove_braces_or_not {
-			return result, bin_or_hex, index_of_bin_or_hex, index_of_others
+			return result, bin_or_hex, index_of_bin_or_hex, add_newline
 		} else {
-			return sentenc, bin_or_hex, index_of_bin_or_hex, index_of_others
+			return sentenc, bin_or_hex, index_of_bin_or_hex, add_newline
 		}
 	} else {
-		return sentenc, "", index_of_bin_or_hex, index_of_others
+		return sentenc, "", index_of_bin_or_hex, add_newline
 	}
 }
 
 // this function edit the sentence depend the keyword and number
 // this function contains swith cases
-func Edit_Sentece(sentenc, key_word, bin_or_hex string, index_of_bin_or_hex, index_of_others, number int) string {
-	//test := strings.ReplaceAll(sentenc, "~", " ")
+func Edit_Sentece(sentenc, key_word, bin_or_hex string, index_of_bin_or_hex, number int, add_newline bool) string {
 
 	result := ""
 
 	// start our switch
 	switch key_word {
 	case "cap":
-		result = Capitalize(sentenc, index_of_others, number)
+		result = Capitalize(sentenc, number)
 	case "up":
-		result = To_Upper(sentenc, index_of_others, number)
+		result = To_Upper(sentenc, number)
 	case "low":
-		result = To_Lower(sentenc, index_of_others, number)
+		result = To_Lower(sentenc, number)
 	case "bin":
 		// convert the bin string to dicimal
 		dicimal := To_Dicimal(bin_or_hex, key_word)
 		// let convert now the number to string
 		num_as_string := strconv.Itoa(dicimal)
-		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string, index_of_bin_or_hex)
+		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string, index_of_bin_or_hex, add_newline)
 	case "hex":
 		dicimal := To_Dicimal(bin_or_hex, key_word)
 		// let convert now the number to string
 		num_as_string := strconv.Itoa(dicimal)
-		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string, index_of_bin_or_hex)
+		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string, index_of_bin_or_hex, add_newline)
 	}
 	return result
 }
 
 // this the sentence manipulation function
-func Sentenc_Mainpulation(valid_sentence, full_result, key_word, bin_or_hex string, index_of_bin_or_hex, index_of_others, number int, status bool) string {
+func Sentenc_Mainpulation(valid_sentence, full_result, key_word, bin_or_hex string, index_of_bin_or_hex, number int, status, add_newline bool) string {
 	result := ""
 	// check the keyword if it  valid
 	if status {
-		result = Edit_Sentece(valid_sentence, key_word, bin_or_hex, index_of_bin_or_hex, index_of_others, number)
+		result = Edit_Sentece(valid_sentence, key_word, bin_or_hex, index_of_bin_or_hex, number, add_newline)
 	} else {
 		result = valid_sentence
 	}
@@ -295,11 +280,11 @@ func Destribute_Sentences(line string) string {
 		// lets check if the keyword is valid
 		status, remove_braces_or_not := Is_Valid(flag, key_word, number)
 		// lets modifid the sentence and remove the braces if exist
-		valid_sentence, bin_or_hex, index_of_bin_or_hex, index_of_others := Rmove_braces(sentenc, for_braces, remove_braces_or_not)
+		valid_sentence, bin_or_hex, index_of_bin_or_hex, add_newline := Rmove_braces(sentenc, for_braces, remove_braces_or_not)
 		// lets send this valid sentence to manipulation depend on the keyword and status
 		// valid_sentence = Expand_Spaces(valid_sentence)
 
-		manipulated_sentenc := Sentenc_Mainpulation(valid_sentence, flag, key_word, bin_or_hex, index_of_bin_or_hex, index_of_others, number, status)
+		manipulated_sentenc := Sentenc_Mainpulation(valid_sentence, flag, key_word, bin_or_hex, index_of_bin_or_hex, number, status, add_newline)
 
 		// refresh the result and concat it with  the valid sentence
 		result = ""
@@ -340,9 +325,14 @@ func To_Dicimal(bin_or_hex, key_Word string) int {
 
 // this function for the bin and hex
 // it replace the bin_or_hex string by the num_as_atring in the sentenc
-func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string, index_of_bin_or_hex int) string {
+func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string, index_of_bin_or_hex int, add_newline bool) string {
 	arr := strings.Split(sentenc, " ")
-	arr[index_of_bin_or_hex] = num_as_string
+
+	if add_newline {
+		arr[index_of_bin_or_hex] = "~ " + num_as_string
+	}else {
+		arr[index_of_bin_or_hex] = num_as_string
+	}
 
 	// sory for this bin_or hex we dont need it
 	result := strings.Join(arr, " ")
@@ -350,8 +340,8 @@ func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string, index_of_bin_or_
 }
 
 // this a capitalise function
-func Capitalize(sentenc string, index_of_others, number int) string {
-count := 0
+func Capitalize(sentenc string, number int) string {
+	count := 0
 	array_of_words := strings.Fields(sentenc)
 	n := len(array_of_words) - 1
 	t := len(array_of_words) - 1
@@ -378,8 +368,12 @@ count := 0
 		// lets handle the out of range here
 		if i-count < 0 {
 			count = i
+			// let know if the word is up or low
+			array_of_words[i-count] = strings.ToLower(array_of_words[i-count])
+
 			array_of_words[i-count] = strings.Title(array_of_words[i-count])
 		} else {
+			array_of_words[i-count] = strings.ToLower(array_of_words[i-count])
 			array_of_words[i-count] = strings.Title(array_of_words[i-count])
 
 		}
@@ -395,7 +389,7 @@ count := 0
 }
 
 // this function to uper the words
-func To_Upper(sentenc string, index_of_others, number int) string {
+func To_Upper(sentenc string, number int) string {
 	count := 0
 	array_of_words := strings.Fields(sentenc)
 	n := len(array_of_words) - 1
@@ -438,7 +432,7 @@ func To_Upper(sentenc string, index_of_others, number int) string {
 }
 
 // this function to lower the words
-func To_Lower(sentenc string, index_of_others, number int) string {
+func To_Lower(sentenc string, number int) string {
 	count := 0
 	array_of_words := strings.Fields(sentenc)
 	n := len(array_of_words) - 1
@@ -573,9 +567,7 @@ func Punctuations(text string) string {
 
 // this the final function that append the newlines
 func Append_New_Line(line string) string {
-	// Remove unwanted characters if needed
-	line = strings.ReplaceAll(line, "~", "\n")
-
-	// Convert the string to a slice of runes to handle Unicode correctly
+	line = strings.ReplaceAll(line, "~ ", "\n")
+	
 	return line
 }

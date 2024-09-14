@@ -64,14 +64,13 @@ func main() {
 
 	// lets extract our text
 	text := Extract_Text()
-	//fmt.Println(text,"line 67")
-	// split the full text by a newline
+	
 	line := functions.Split_By_Newline(text)
 	fmt.Println(line," line 70")
 	
 	
 	
-	//return
+	
 	// now send this line to vowel manipulation
 	vowled_line := functions.Vowles_manioulation(line)
 
@@ -83,7 +82,7 @@ func main() {
 	single_quoteed_line = functions.Expand_Spaces(single_quoteed_line)
 
 	// now send the single_quoteed_line to manipulation traitment
-	manipulated_line := functions.Destribute_Sentences(single_quoteed_line)
+	manipulated_line := functions.Destribute_Sentences(single_quoteed_line)+" "
 	fmt.Println(manipulated_line,"line 88")
 	// now we have this manipulated_line
 	// send this manipulated_line  to add newlines for a valid  format
