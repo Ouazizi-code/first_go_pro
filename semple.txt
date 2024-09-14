@@ -1,11 +1,11 @@
-KKKKKKK
+KKKKKKK (cap)      ......
 'r'nm        '......
  m
 
 
-.... 
+.... .....
 
-(bin)
+(b in)
 GGGGGG .........TTTTTTT @ $v * E
  
  
@@ -17,4 +17,6 @@ UUUUUUUUUU
  
  
 LLLLLLLLLL   
-(cap,584759)
+(cap,584759)..
+
+...

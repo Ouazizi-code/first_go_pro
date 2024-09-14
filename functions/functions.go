@@ -546,7 +546,7 @@ func Punctuations(text string) string {
 
 	// Handle spacing around punctuation marks
 	for i := range text {
-		if IS_Punctuation(string(text[i])) && i < len(text)-1 && (unicode.IsLetter(rune(text[i+1])) || unicode.IsDigit(rune(text[i+1]))) {
+		if IS_Punctuation(string(text[i])) /* && i < len(text)-1*/ && (unicode.IsLetter(rune(text[i+1])) || unicode.IsDigit(rune(text[i+1]))) {
 			text = text[:i+1] + " " + text[i+1:]
 		}
 	}
@@ -559,8 +559,14 @@ func Punctuations(text string) string {
 		" :", ":",
 		" !", "!",
 		" ?", "?",
+		"~", "~ ",
+		//"  ~.", "~ .",
 	)
+
+	
+	
 	text = to_replace.Replace(text)
+	
 
 	return text
 }
@@ -568,6 +574,8 @@ func Punctuations(text string) string {
 // this the final function that append the newlines
 func Append_New_Line(line string) string {
 	line = strings.ReplaceAll(line, "~ ", "\n")
+	line = strings.ReplaceAll(line, "~.", "." + "\n")
+	
 	
 	return line
 }
