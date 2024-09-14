@@ -17,86 +17,6 @@ func Expand_Spaces(s string) string {
 	return valid_line
 }
 
-// this function befor traitment
-
-func Befor_Traitment(line string) string {
-	vowled_line := Vowles_manioulation(line)
-	punctuationed_line := Punctuations(vowled_line)
-	single_quoteed_line := Single_Quote(punctuationed_line)
-	single_quoteed_line = Expand_Spaces(single_quoteed_line)
-	manipulated_line0 := Destribute_Sentences0(single_quoteed_line)
-	test := Detect_Newline(manipulated_line0)
-	fmt.Println(manipulated_line0)
-	fmt.Println(test, "30")
-
-	return ""
-}
-
-func Destribute_Sentences0(line string) string {
-	array_of_sentences := Split_line(line)
-	fmt.Println(array_of_sentences,"37")
-
-	n := len(array_of_sentences)
-
-	result := ""
-
-	// now lets destribute our sentences to manipulate with a for loop
-	for i := 0; i < n; i++ {
-
-		sentenc := result + array_of_sentences[i]
-		// send this sentenc to search_keyword to find the keyword
-		for_braces, flag, key_word, number := Search_KeyWord(sentenc)
-		// lets check if the keyword is valid
-		status, remove_braces_or_not := Is_Valid(flag, key_word, number)
-		// lets modifid the sentence and remove the braces if exist
-		valid_sentence, bin_or_hex, index_of_bin_or_hex, _ := Rmove_braces(sentenc, for_braces, remove_braces_or_not)
-		// lets send this valid sentence to manipulation depend on the keyword and status
-		valid_sentence = Expand_Spaces(valid_sentence)
-
-		manipulated_sentenc := Sentenc_Mainpulation0(valid_sentence, flag, key_word, bin_or_hex, index_of_bin_or_hex, status)
-		fmt.Println(manipulated_sentenc,"57")
-		// refresh the result and concat it with  the valid sentence
-		result = ""
-
-		result += manipulated_sentenc
-	}
-
-	return result
-
-}
-
-func Sentenc_Mainpulation0(valid_sentence, flag, key_word, bin_or_hex string, index_of_bin_or_hex int, status bool) string {
-	result := ""
-	// check the keyword if it  valid
-	if status {
-		result = Edit_Sentece0(valid_sentence, key_word, bin_or_hex, index_of_bin_or_hex)
-	} else {
-		result = valid_sentence
-	}
-	return result
-}
-
-func Edit_Sentece0(valid_sentence, key_word, bin_or_hex string, index_of_bin_or_hex int) string {
-	result := ""
-
-	// start our switch
-	switch key_word {
-	case "bin":
-		// convert the bin string to dicimal
-		dicimal := To_Dicimal(bin_or_hex, key_word)
-		// let convert now the number to string
-		num_as_string := strconv.Itoa(dicimal)
-		result = Raplace_Dicimal(valid_sentence, bin_or_hex, num_as_string, index_of_bin_or_hex)
-	case "hex":
-		dicimal := To_Dicimal(bin_or_hex, key_word)
-		// let convert now the number to string
-		num_as_string := strconv.Itoa(dicimal)
-		result = Raplace_Dicimal(valid_sentence, bin_or_hex, num_as_string, index_of_bin_or_hex)
-	}
-	return result
-}
-
-// ////////////////////////////////////////////////////////////////////////
 // this function split line by newline
 func Split_By_Newline(text string) string {
 	result := ""
@@ -330,11 +250,20 @@ func Edit_Sentece(sentenc, key_word, bin_or_hex string, index_of_bin_or_hex, ind
 		result = To_Upper(sentenc, index_of_others, number)
 	case "low":
 		result = To_Lower(sentenc, index_of_others, number)
+	case "bin":
+		// convert the bin string to dicimal
+		dicimal := To_Dicimal(bin_or_hex, key_word)
+		// let convert now the number to string
+		num_as_string := strconv.Itoa(dicimal)
+		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string, index_of_bin_or_hex)
+	case "hex":
+		dicimal := To_Dicimal(bin_or_hex, key_word)
+		// let convert now the number to string
+		num_as_string := strconv.Itoa(dicimal)
+		result = Raplace_Dicimal(sentenc, bin_or_hex, num_as_string, index_of_bin_or_hex)
 	}
 	return result
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // this the sentence manipulation function
 func Sentenc_Mainpulation(valid_sentence, full_result, key_word, bin_or_hex string, index_of_bin_or_hex, index_of_others, number int, status bool) string {
@@ -422,9 +351,10 @@ func Raplace_Dicimal(sentenc, bin_or_hex, num_as_string string, index_of_bin_or_
 
 // this a capitalise function
 func Capitalize(sentenc string, index_of_others, number int) string {
+count := 0
 	array_of_words := strings.Fields(sentenc)
-	// loop throught the array
 	n := len(array_of_words) - 1
+	t := len(array_of_words) - 1
 
 	// update the number if it is grather the len(array_of_words) and if = 0
 	if number == 0 || number == 1 {
@@ -433,8 +363,31 @@ func Capitalize(sentenc string, index_of_others, number int) string {
 	if number > n {
 		number = n + 1
 	}
-	for i := n - index_of_others; i > n-number; i-- {
-		array_of_words[i] = strings.Title(array_of_words[i])
+	for i := n; i > n-number; i-- {
+
+		// lets loop throught the array befor to detect newlines
+		for l := t; l > n-number; l-- {
+			word := array_of_words[l]
+			if word == "~" {
+				count++
+			} else {
+				break
+			}
+		}
+
+		// lets handle the out of range here
+		if i-count < 0 {
+			count = i
+			array_of_words[i-count] = strings.Title(array_of_words[i-count])
+		} else {
+			array_of_words[i-count] = strings.Title(array_of_words[i-count])
+
+		}
+
+		t -= count
+		n -= count
+		count = 0
+
 	}
 
 	result := strings.Join(array_of_words, " ")
@@ -443,10 +396,11 @@ func Capitalize(sentenc string, index_of_others, number int) string {
 
 // this function to uper the words
 func To_Upper(sentenc string, index_of_others, number int) string {
-	// start := 0
-	// array_of_words := strings.Split(sentenc, " ")
+	count := 0
 	array_of_words := strings.Fields(sentenc)
 	n := len(array_of_words) - 1
+	t := len(array_of_words) - 1
+
 	// update the number if it is grather the len(array_of_words) and if = 0
 	if number == 0 || number == 1 {
 		number = 1
@@ -454,8 +408,29 @@ func To_Upper(sentenc string, index_of_others, number int) string {
 	if number > n {
 		number = n + 1
 	}
-	for i := n - index_of_others; i > n-number; i-- {
-		array_of_words[i] = strings.ToUpper(array_of_words[i])
+	for i := n; i > n-number; i-- {
+
+		// lets loop throught the array befor to detect newlines
+		for l := t; l > n-number; l-- {
+			word := array_of_words[l]
+			if word == "~" {
+				count++
+			} else {
+				break
+			}
+		}
+
+		// lets handle the out of range here
+		if i-count < 0 {
+			count = i
+			array_of_words[i-count] = strings.ToUpper(array_of_words[i-count])
+		} else {
+			array_of_words[i-count] = strings.ToUpper(array_of_words[i-count])
+		}
+
+		t -= count
+		n -= count
+		count = 0
 	}
 
 	result := strings.Join(array_of_words, " ")
@@ -464,9 +439,11 @@ func To_Upper(sentenc string, index_of_others, number int) string {
 
 // this function to lower the words
 func To_Lower(sentenc string, index_of_others, number int) string {
+	count := 0
 	array_of_words := strings.Fields(sentenc)
-	// loop throught the array
 	n := len(array_of_words) - 1
+	t := len(array_of_words) - 1
+
 	// update the number if it is grather the len(array_of_words) and if = 0
 	if number == 0 || number == 1 {
 		number = 1
@@ -474,8 +451,31 @@ func To_Lower(sentenc string, index_of_others, number int) string {
 	if number > n {
 		number = n + 1
 	}
-	for i := n - index_of_others; i > n-number; i-- {
-		array_of_words[i] = strings.ToLower(array_of_words[i])
+	for i := n; i > n-number; i-- {
+
+		// lets loop throught the array befor to detect newlines
+		for l := t; l > n-number; l-- {
+			word := array_of_words[l]
+			if word == "~" {
+				count++
+			} else {
+				break
+			}
+		}
+
+		// lets handle the out of range here
+		if i-count < 0 {
+			count = i
+			array_of_words[i-count] = strings.ToLower(array_of_words[i-count])
+		} else {
+			array_of_words[i-count] = strings.ToLower(array_of_words[i-count])
+
+		}
+
+		t -= count
+		n -= count
+		count = 0
+
 	}
 
 	result := strings.Join(array_of_words, " ")
@@ -572,24 +572,10 @@ func Punctuations(text string) string {
 }
 
 // this the final function that append the newlines
-func Append_New_Line(line string, indexs []int) string {
+func Append_New_Line(line string) string {
 	// Remove unwanted characters if needed
 	line = strings.ReplaceAll(line, "~", "\n")
 
 	// Convert the string to a slice of runes to handle Unicode correctly
 	return line
 }
-
-// this function detect new lines
-func Detect_Newline(line string) []int {
-	indexs_of_newline := []int{}
-	for i, char := range line {
-		if char == '~' {
-			indexs_of_newline = append(indexs_of_newline, i)
-		}
-	}
-
-	return indexs_of_newline
-}
-
-////////////////////////////////////////////////////////////

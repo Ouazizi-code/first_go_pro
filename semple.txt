@@ -1,2 +1,17 @@
- h h h h ....... a a a ' hh   ' 64 (hex) (bin)
-(up,3)        kkkk
+kkkk
+
+
+
+ gggggg ttttttt 
+ 
+ 
+ 
+ 
+ uuuuu  
+ 
+ 
+ 
+ 
+ 
+   hhhh   
+(cap,584759)

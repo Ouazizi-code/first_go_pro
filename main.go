@@ -64,13 +64,15 @@ func main() {
 
 	// lets extract our text
 	text := Extract_Text()
-
+	//fmt.Println(text,"line 67")
 	// split the full text by a newline
 	line := functions.Split_By_Newline(text)
-	fmt.Println(line, "70")
-	line_befor_traitment := functions.Befor_Traitment(line)
-	fmt.Println(line_befor_traitment,"72")
-
+	fmt.Println(line," line 70")
+	
+	
+	
+	//return
+	// now send this line to vowel manipulation
 	vowled_line := functions.Vowles_manioulation(line)
 
 	// now send this voweled line to punctuations manipulation
@@ -79,36 +81,15 @@ func main() {
 	// now send the punctuationed_line to ingle_Quote traitment
 	single_quoteed_line := functions.Single_Quote(punctuationed_line)
 	single_quoteed_line = functions.Expand_Spaces(single_quoteed_line)
-	
-	
-	//array_of_sentences := functions.Split_line(single_quoteed_line)
-
-	indexs_of_newlines := functions.Detect_Newline(line)
-	fmt.Println(indexs_of_newlines, "72")
-	
-
-	////////////////////////////////////////////////////////////////////////
-	//return
-	// now send this line to vowel manipulation
-	/*vowled_line := functions.Vowles_manioulation(line)
-
-	// now send this voweled line to punctuations manipulation
-	punctuationed_line := functions.Punctuations(vowled_line)
-
-	// now send the punctuationed_line to ingle_Quote traitment
-	single_quoteed_line := functions.Single_Quote(punctuationed_line)*/
-	single_quoteed_line = functions.Expand_Spaces(single_quoteed_line)
 
 	// now send the single_quoteed_line to manipulation traitment
 	manipulated_line := functions.Destribute_Sentences(single_quoteed_line)
-	fmt.Println(manipulated_line, "88")
+	fmt.Println(manipulated_line,"line 88")
 	// now we have this manipulated_line
 	// send this manipulated_line  to add newlines for a valid  format
+	final_text := functions.Append_New_Line(manipulated_line)
 
-	////////////////////////////////////////////////////////////////////////////////////////
 	// now simply add our final text to result.txt
-
-	final_text := functions.Append_New_Line(manipulated_line, indexs_of_newlines)
 	Append_Text(final_text)
 }
 
