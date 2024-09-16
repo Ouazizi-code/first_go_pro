@@ -41,13 +41,16 @@ func main() {
 	// use bufio to scan our text
 	scan_text := bufio.NewScanner(inputFile)
 	write_text := bufio.NewWriter(outputFile)
-
+    test := ""
 	for scan_text.Scan() {
 		line := scan_text.Text()
 		modifiedline := processLine(line)
+		modifiedline = strings.TrimSpace(modifiedline)
+		test += modifiedline + "\n"
 		write_text.WriteString(modifiedline + "\n")
 	}
-
+	test = strings.TrimSpace(test)
+	fmt.Println(test,"52")
 	// handle erore for sccanner
 	if err := scan_text.Err(); err != nil {
 		fmt.Printf("Error reading input file: %v\n", err)
@@ -60,13 +63,12 @@ func main() {
 
 func processLine(line string) string {
 	line = Vowles_manioulation(line)
-	line = Punctuations(line)
+	line = handlePunctuation(line)
 	test , _ := Single_Quote(line)
 	line = test
-	
-
 	line = applyModifiers(line)
-	line = Punctuations(line)
+	line = handlePunctuation(line)
+	
 	return line
 }
 
@@ -78,24 +80,31 @@ func applyModifiers(line string) string {
 	// ^(.+?)\s*\(\s*(hex|bin|up|low|cap)\s*(?:,\s*(\d+))?\s*\)
 	// ^(.+?)\s*\(\s*(hex|bin|up|low|cap)\s*(?:,\s*(\d+))?\s*\)
 	// ^(.+?)\s*\(\s*(hex|bin|up|low|cap)\s*(?:,\s*(\d+))?\s*\)$
-
-	modifierRegex := regexp.MustCompile(`^(.+?)\(\s*(hex|bin|up|low|cap)\s*(?:,\s*(\d+))?\s*\)`)
+	//(?i)\b(\S*)\s*\((hex|bin|up|low|cap)(?:,\s*(\d+))?\)
+	// Remove patterns with no preceding text
+	line = removeEmptyModifiers(line)
+	
+	modifierRegex := regexp.MustCompile(`(?i)\b(\S*)\s*\(\s+(hex|bin|up|low|cap)(?:,\s*(\d+))?\s+\)`)
 	for {
 		matches := modifierRegex.FindStringSubmatchIndex(line)
-		//fmt.Println(matches,"72")
+		//fmt.Println(matches,"87")
 		if matches == nil {
+			
 			break
 		}
 
+		
+		
 		word := line[matches[2]:matches[3]]
+		word = strings.TrimSpace(word)
 		//fmt.Println(word,"78")
+		
 		modifier := line[matches[4]:matches[5]]
 		//fmt.Println(modifier,"80")
 		countStr := ""
 		if matches[6] != -1 {
 			countStr = line[matches[6]:matches[7]]
 		}
-		fmt.Println(countStr, "95")
 		count := 1
 		if countStr != "" {
 			var err error
@@ -114,7 +123,7 @@ func applyModifiers(line string) string {
 				num_as_string := strconv.Itoa(int(val))
 				words[len(words)-1] = num_as_string
 				valid := strings.Join(words, " ")
-				transformedText = valid
+				transformedText = valid+" "
 			} else {
 				fmt.Println("invalid syntacs to parsint in hex transformation : ", "'", to_send, "'")
 				transformedText = word
@@ -127,7 +136,7 @@ func applyModifiers(line string) string {
 				num_as_string := strconv.Itoa(int(val))
 				words[len(words)-1] = num_as_string
 				valid := strings.Join(words, " ")
-				transformedText = valid
+				transformedText = valid+" "
 			} else {
 				fmt.Println("invalid syntacs to parsint in bin transformation : ", "'", to_send, "'")
 				transformedText = word
@@ -138,18 +147,31 @@ func applyModifiers(line string) string {
 			transformedText = transformWords(word, toLowercase, count)
 		case "cap":
 			transformedText = transformWords(word, capitalize, count)
-		default:
-			transformedText = word
+		/*default:
+			transformedText = word*/
 		}
 
 		line = line[:matches[0]] + transformedText + line[matches[1]:]
 	}
+	
 
 	return line
 }
 
+// Helper function to remove patterns with no preceding text
+func removeEmptyModifiers(line string) string {
+		// Regex to remove (modifier) if it's the only content or if preceded only by whitespace/newlines
+	re := regexp.MustCompile(`(?m)^\s*\((hex|bin|up|low|cap)(?:,\s*(\d+))?\)\s*$`)
+	line = re.ReplaceAllString(line, "")
+	
+	// Also handle patterns with preceding newlines or whitespace but no actual text
+	line = regexp.MustCompile(`(?m)^\s*\((hex|bin|up|low|cap)(?:,\s*(\d+))?\)\s*`).ReplaceAllString(line, "")
+	
+	return line
+}
+
 func transformWords(text string, transform func(string) string, count int) string {
-	//fmt.Println(text,"125")
+	fmt.Println(text,"125")
 	//fmt.Println(count,126)
 	words := strings.Fields(text)
 	if count > len(words) {
@@ -261,7 +283,7 @@ func Punctuations(text string) string {
 
 	// Handle spacing around punctuation marks
 	for i := range text {
-		if IS_Punctuation(string(text[i])) /* && i < len(text)-1*/ && (unicode.IsLetter(rune(text[i+1])) || unicode.IsDigit(rune(text[i+1]))) {
+		if IS_Punctuation(string(text[i]))  && i < len(text)-1 && (unicode.IsLetter(rune(text[i+1])) || unicode.IsDigit(rune(text[i+1]))) {
 			text = text[:i+1] + " " + text[i+1:]
 		}
 	}

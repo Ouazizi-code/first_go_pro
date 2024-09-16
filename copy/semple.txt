@@ -1,11 +1,10 @@
- a a a ... .... ????? A a A '        hassa         .............'   '
+
+01(  hex )l
 
 
 
 
+k
 
 
-
-
-
- ..
+// handle singlr quote 
